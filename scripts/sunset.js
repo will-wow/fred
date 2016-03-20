@@ -4,7 +4,8 @@
 //   Set a sunset alert for a channel.
 //
 // Commands:
-//  hubot sunset reminder <time> - Set a sunset alert for the channel.
+//  hubot remind us about sunset - Set a sunset alert for the channel.
+//  hubot remind us about sunset at <address> - Set a sunset alert for the channel at the address.
 //  hubot when is sunset - Reply's with today's sunset time at the default address.
 //  hubot when is sunset at <address> - Reply's with today's sunset time at the address.
 //
@@ -18,6 +19,7 @@ const _ = require('lodash');
 const Q = require('q');
 const moment = require('moment-timezone');
 const tzwhere = require('tzwhere');
+const CronJob = require('cron').CronJob;
 
 const geocoderProvider = 'google';
 const httpAdapter = 'http';
@@ -122,7 +124,36 @@ module.exports = (robot) => {
     getPlace(address)
     .then((place) => getSunsetTime(robot, place))
     .then((data) => formatTime(data.place, data.time))
-    .then((time) => res.send(`Tonight, sunset is at ${time}`))
+    .then((time) => res.send(`Tonight, sunset is at ${time} :sunrise_over_mountains:`))
     .catch((error) => res.send(error));
   });
+
+  // TODO: handle setting up sunset reminders for 'remind us about sunset'
+  //
+  // robot.respond(/remind us about sunset(?: at (.*))?$/i, (res) => {
+  //   Check if there's an existing job for this room, and ask user to cancel it first.
+  //   Store the place and time in robot.brain
+  //   Get the sunset time
+  //   Set up a cron job to remind about sunset, that goes off 5 mins before, with robot.messageRoom
+  //   Store the job in memory, so we can cancel it if requested.
+  //   Check robot.brain on wakeup, or at midnight (for if we get this off a free heroku) and:
+  //     Schedule the reminder cron jobs for every room
+  //
+      // if (remdinerJobs[room]) remdinerJobs[room].stop();
+      // remdinerJobs[room] = new CronJob({
+      //   cronTime: new Date(time),
+      //   onTick: () => {
+      //     robot.messageRoom
+      //   },
+      //   start: true,
+      //   timeZone: place.timezone
+      // });
+  // });
+  //
+  // robot.respond(/stop reminding us about sunset/i, (res) => {
+  //   Clear robot.brain of sunset reminder for this room
+  //   Stop current cron job
+  //
+      // remdinerJobs[room].stop();
+  // });
 };
