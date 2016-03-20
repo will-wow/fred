@@ -1,0 +1,13 @@
+{
+  "node": true,
+  "curly": false,
+  "eqeqeq": true,
+  "eqnull": true,
+  "forin":true,
+  "latedef":"nofunc",
+  "nonbsp":true,
+  "devel":true,
+  "globals": {
+  },
+  "esversion": 6
+}
