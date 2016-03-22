@@ -15,145 +15,57 @@
 // Author:
 //  Will Lee-Wagner <will@assetavenue.com>
 
-const _ = require('lodash');
-const Q = require('q');
-const moment = require('moment-timezone');
-const tzwhere = require('tzwhere');
-const CronJob = require('cron').CronJob;
-
-const geocoderProvider = 'google';
-const httpAdapter = 'http';
-const geocoder = require('node-geocoder')(geocoderProvider, httpAdapter);
-
-const SUNSET_BASE_URL = 'http://api.sunrise-sunset.org';
-const SUNSET_PATH = 'json';
-
 const DEFAULT_ADDRESS = process.env.HUBOT_SUNSET_DEFAULT_ADDRESS || '1100 Glendon Ave, Los Angeles, CA 90024';
 
-/**
- * Returns a promise with the place object for an address.
- * @param {string} address
- * @returns {Object} Promise with Place
- */
-function getPlace(address) {
-
-  return geocoder.geocode(address)
-    .then((res) => {
-
-      if (!res || !res[0] || !res[0].latitude || !res[0].longitude) {
-        throw new Error('Address not found!');
-      }
-
-      // Pull out the coordinates of the address, and format them for sunrise-sunset.org.
-      const geo = {
-        lat: res[0].latitude,
-        lng: res[0].longitude
-      };
-
-      // Look up the timezone for the place, and save that for formatting later.
-      const timezone = tzwhere.tzNameAt(geo.lat, geo.lng);
-
-      return { geo, timezone };
-    });
-}
-
-function formatSunsetPath(place) {
-  return `${SUNSET_PATH}?lat=${place.geo.lat}&lng=${place.geo.lng}&formatted=0`;
-}
-
-/**
- * Gets the sunset time for today.
- * @param {Object} robot - The hubot robot instance.
- * @param {Object} place - The place data.
- * @returns {Object} Promise with an ISO string for the sunset time, and the place for chaining.
- */
-function getSunsetTime(robot, place) {
-  const deferred = Q.defer();
-
-  robot.http(SUNSET_BASE_URL)
-    .path(formatSunsetPath(place))
-    .header('Accept', 'application/json')
-    .get(place.geo)((err, res, body) => {
-
-      // Handle response errors.
-      if (err) {
-        return deferred.reject(err);
-      }
-
-      let data;
-      try {
-        // Parse the response.
-        data = JSON.parse(body);
-      }
-      catch (e) {
-        // Handle bad JSON.
-        return deferred.reject(body);
-      }
-
-      let results = data.results;
-      if (!results) {
-        return deferred.reject('No sunset time found!');
-      }
-
-      deferred.resolve({
-        time: results.sunset,
-        place
-      });
-    });
-
-   return deferred.promise;
-}
-
-/**
- * Formats a time with the timezone from a place.
- * @param {Object} place
- * @param {string} time
- * @returns {string} Time
- */
-function formatTime(place, time) {
-  return moment(time).tz(place.timezone).format('h:mm a');
-}
-
-// Initialize the timezone lookup library.
-tzwhere.init();
+const SunsetBrain = require('../lib/SunsetBrain');
+const SunsetPlace = require('../lib/SunsetPlace');
+const SunsetTime = require('../lib/SunsetTime');
+const sunsetMessages = require('../lib/sunsetMessages');
 
 module.exports = (robot) => {
+  // Initialize the SunsetBrain for data access.
+  const sunsetBrain = new SunsetBrain(robot);
+
   robot.respond(/when is sunset(?: at (.*))?\??$/i, (res) => {
     const address = res.match[1] || DEFAULT_ADDRESS;
+    const sunsetPlace = new SunsetPlace(address);
+    let sunsetTime;
 
-    getPlace(address)
-    .then((place) => getSunsetTime(robot, place))
-    .then((data) => formatTime(data.place, data.time))
-    .then((time) => res.send(`Tonight, sunset is at ${time} :sunrise_over_mountains:`))
+    sunsetPlace.promise
+    .then((place) => {
+      sunsetTime = new SunsetTime(robot, place);
+      return sunsetTime.promise;
+    })
+    .then(() => sunsetTime.getFormattedTime())
+    .then((formattedTime) => res.send(sunsetMessages.getOneTimeSunsetMessage(formattedTime)))
     .catch((error) => res.send(error));
   });
 
   // TODO: handle setting up sunset reminders for 'remind us about sunset'
   //
-  // robot.respond(/remind us about sunset(?: at (.*))?$/i, (res) => {
-  //   Check if there's an existing job for this room, and ask user to cancel it first.
-  //   Store the place and time in robot.brain
-  //   Get the sunset time
-  //   Set up a cron job to remind about sunset, that goes off 5 mins before, with robot.messageRoom
-  //   Store the job in memory, so we can cancel it if requested.
-  //   Check robot.brain on wakeup, or at midnight (for if we get this off a free heroku) and:
-  //     Schedule the reminder cron jobs for every room
-  //
-      // if (remdinerJobs[room]) remdinerJobs[room].stop();
-      // remdinerJobs[room] = new CronJob({
-      //   cronTime: new Date(time),
-      //   onTick: () => {
-      //     robot.messageRoom
-      //   },
-      //   start: true,
-      //   timeZone: place.timezone
-      // });
-  // });
-  //
-  // robot.respond(/stop reminding us about sunset/i, (res) => {
-  //   Clear robot.brain of sunset reminder for this room
-  //   Stop current cron job
-  //
-      // remdinerJobs[room].stop();
-  // });
+  robot.respond(/remind us about sunset(?: at (.*))?$/i, (res) => {
+    const room = res.message.room;
+    const address = res.match[1] || DEFAULT_ADDRESS;
+
+    // Handle an existing room reminder.
+    if (sunsetBrain.roomHasReminder(room)) {
+      res.send(sunsetMessages.getExistingRoomMessage());
+      return;
+    }
+
+    sunsetBrain.setRoomReminder(room, address);
+    res.send(sunsetMessages.getSunsetReminderMessage());
+  });
+
+  robot.respond(/stop reminding us about sunset/i, (res) => {
+    const room = res.message.room;
+
+    if (sunsetBrain.roomHasReminder(room)) {
+      res.send(sunsetMessages.getSunsetReminderClearFailMessage());
+      return;
+    }
+
+    sunsetBrain.clearRoomReminder(room);
+    res.send(sunsetMessages.getSunsetReminderClearMessage());
+  });
 };
