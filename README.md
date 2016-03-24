@@ -34,6 +34,12 @@ Then you can interact with baat by typing `baat help`.
     baat help - Displays all of the help commands that baat knows about.
     ...
 
+You can debug a script by running: 
+
+    % coffee --nodejs --debug node_modules/.bin/hubot --name "baat"
+    
+There is a launch.json set up for VSCode - run Attach to Baat from the debugger to be able to set breakpoints. 
+
 ### Configuration
 
 A few scripts (including some installed by default) require environment

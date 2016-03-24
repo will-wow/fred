@@ -52,15 +52,14 @@ module.exports = (robot) => {
       res.send(sunsetMessages.getExistingRoomMessage());
       return;
     }
-
     sunsetBrain.setRoomReminder(room, address);
-    res.send(sunsetMessages.getSunsetReminderMessage());
+    res.send(sunsetMessages.getSunsetReminderSetMessage());
   });
 
   robot.respond(/stop reminding us about sunset/i, (res) => {
     const room = res.message.room;
 
-    if (sunsetBrain.roomHasReminder(room)) {
+    if (!sunsetBrain.roomHasReminder(room)) {
       res.send(sunsetMessages.getSunsetReminderClearFailMessage());
       return;
     }
