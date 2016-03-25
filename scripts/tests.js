@@ -15,8 +15,8 @@ module.exports = (robot) => {
     res.send('kk');
 
     setTimeout(function () {
-      this.robot.messageRoom(res.message.room, 'No hashtag');
-      this.robot.messageRoom('#' + res.message.room, 'hashtag');
+      robot.messageRoom(res.message.room, 'No hashtag');
+      robot.messageRoom('#' + res.message.room, 'hashtag');
     }, 1000);
   });
 };
