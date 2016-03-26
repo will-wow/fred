@@ -30,17 +30,10 @@ class SunsetTime {
   }
 
   /**
-   * @returns {number} Epoch time.
+   * Time formatted with the timezone from the place.
+   * @type {string}
    */
-  getTime() {
-    return this.time;
-  }
-
-  /**
-   * Formats the time with the timezone from the place.
-   * @returns {string} Time
-   */
-  getFormattedTime() {
+  get formattedTime() {
     return moment(this.time).tz(this.place.timezone).format('h:mm a');
   }
 

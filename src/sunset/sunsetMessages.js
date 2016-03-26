@@ -38,7 +38,7 @@ exports.getOneTimeSunsetMessage = (formattedTime) => {
  * @returns {string}
  */
 exports.getSunsetReminderMessage = (formattedTime) => {
-  return `Sunset is in 5 minutes, at ${formattedTime}!`;
+  return `Sunset is in 5 minutes, at ${formattedTime} :sunrise_over_mountains:`;
 };
 
 /**

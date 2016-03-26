@@ -17,10 +17,10 @@
 
 const DEFAULT_ADDRESS = process.env.HUBOT_SUNSET_DEFAULT_ADDRESS || '1100 Glendon Ave, Los Angeles, CA 90024';
 
-const SunsetBrain = require('../lib/SunsetBrain');
-const SunsetPlace = require('../lib/SunsetPlace');
-const SunsetTime = require('../lib/SunsetTime');
-const sunsetMessages = require('../lib/sunsetMessages');
+const SunsetBrain = require('../src/sunset/SunsetBrain');
+const SunsetPlace = require('../src/sunset/SunsetPlace');
+const SunsetTime = require('../src/sunset/SunsetTime');
+const sunsetMessages = require('../src/sunset/sunsetMessages');
 
 module.exports = (robot) => {
   // Initialize the SunsetBrain for data access.
@@ -29,6 +29,7 @@ module.exports = (robot) => {
   robot.respond(/when is sunset(?: at (.*))?\??$/i, (res) => {
     const address = res.match[1] || DEFAULT_ADDRESS;
     const sunsetPlace = new SunsetPlace(address);
+    /** @type {SunsetPlace} */
     let sunsetTime;
 
     sunsetPlace.promise
@@ -36,7 +37,7 @@ module.exports = (robot) => {
       sunsetTime = new SunsetTime(robot, place);
       return sunsetTime.promise;
     })
-    .then(() => sunsetTime.getFormattedTime())
+    .then(() => sunsetTime.formattedTime)
     .then((formattedTime) => res.send(sunsetMessages.getOneTimeSunsetMessage(formattedTime)))
     .catch((error) => res.send(error));
   });
