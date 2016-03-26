@@ -22,6 +22,7 @@
     "moment-timezone": "^0.5.2",
     "node-geocoder": "^3.9.0",
     "q": "^1.4.1",
+    "suncalc": "^1.7.0",
     "tzwhere": "^1.0.0"
   },
   "engines": {
