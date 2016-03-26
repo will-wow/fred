@@ -25,11 +25,11 @@ exports.getExistingRoomMessage = (address, defaultAddress) => {
 
 /**
  * The message for a "when is sunset" question.
- * @param {string} formattedTime
+ * @param {SunsetTime} sunsetTime - a SunsetTime instance.
  * @returns {string}
  */
-exports.getOneTimeSunsetMessage = (formattedTime) => {
-  return `Tonight, sunset is at ${formattedTime} :sunrise_over_mountains:`;
+exports.getOneTimeSunsetMessage = (sunsetTime) => {
+  return `${sunsetTime.isTomorrow ? 'Tomorrow' : 'Tonight'}, sunset starts at ${sunsetTime.formattedTime} :sunrise_over_mountains:`;
 };
 
 /**
@@ -38,7 +38,7 @@ exports.getOneTimeSunsetMessage = (formattedTime) => {
  * @returns {string}
  */
 exports.getSunsetReminderMessage = (formattedTime) => {
-  return `Sunset is in 5 minutes, at ${formattedTime} :sunrise_over_mountains:`;
+  return `Sunset starts in 5 minutes, at ${formattedTime} :sunrise_over_mountains:`;
 };
 
 /**

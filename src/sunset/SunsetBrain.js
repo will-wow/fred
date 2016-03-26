@@ -20,11 +20,11 @@ class SunsetBrain extends ReminderBrain {
   }
 
   getReminderTime(place) {
-    const sunsetTime = new SunsetTime(this.robot, place);
+    const sunsetTime = new SunsetTime(place);
+    const sunsetDate = new Date(); //new Date(time);
 
-    return sunsetTime.promise
-    .then((time) => {
-      const sunsetDate = new Date(); //new Date(time);
+    // Use the promise for SunsetTime, so we can .catch errors down the line.
+    return new SunsetTime(place).promise.then((time) => {
       return {
         time: new Date(sunsetDate.setSeconds(sunsetDate.getSeconds() + 5)), //new Date(sunsetDate.setMinutes(sunsetDate.getMinutes() - MINUTES_BEFORE_SUNSET)),
         data: sunsetTime.formattedTime

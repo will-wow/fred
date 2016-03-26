@@ -2,29 +2,32 @@
 
 const _ = require('lodash');
 const Q = require('q');
+const SunCalc = require('suncalc');
 const moment = require('moment-timezone');
 
 const SUNSET_BASE_URL = 'http://api.sunrise-sunset.org';
 const SUNSET_PATH = 'json';
 
+function isValidDate(date) {
+  return isFinite(date);
+}
+
 /** Represents sunset's time */
 class SunsetTime {
   /**
-   * @param {Object} robot
    * @param {Object} place
    */
-  constructor(robot, place) {
-    /** @private */
-    this.robot = robot;
+  constructor(place) {
     /** @private */
     this.deferred = Q.defer();
 
     /** @private */
     this.place = place;
-    /** @private */
-    this.time = undefined;
 
+    // Supports using this instance as a promise.
     this.promise = this.deferred.promise;
+    this.time = undefined;
+    this.isTomorrow = false;
 
     this._getSunsetTime();
   }
@@ -40,49 +43,39 @@ class SunsetTime {
   /**
    * Gets the sunset time for today.
    * @private
-   * @param {Object} robot - The hubot robot instance.
+   * @param {Object=} date - A date to calculate sunset for.
    * @param {Object} place - The place data.
    */
-  _getSunsetTime() {
-    this.robot.http(SUNSET_BASE_URL)
-    .path(this._getSunsetPath())
-    .header('Accept', 'application/json')
-    .get(this.place.geo)((err, res, body) => {
+  _getSunsetTime(now) {
+    now = now || moment().tz(this.place.timezone);
 
-      // Handle response errors.
-      if (err) {
-        return this.deferred.reject(err);
-      }
+    const results = SunCalc.getTimes(new Date(), this.place.geo.lat, this.place.geo.lng);
+    const sunset = results.sunsetStart;
 
-      let data;
-      try {
-        // Parse the response.
-        data = JSON.parse(body);
-      }
-      catch (e) {
-        // Handle bad JSON.
-        return this.deferred.reject(e);
-      }
+    // Bad data returns an invalid date, so do nothing in that case.
+    if (!isValidDate(sunset)) {
+      this.deferred.reject();
+      return;
+    }
 
-      let results = data.results;
-      if (!results) {
-        return this.deferred.reject('No sunset time found!');
-      }
+    // If sunset has already happened, get it for tomorrow instead.
+    if (moment(sunset).tz(this.place.timezone).isBefore(now)) {
+      now.add(1, 'days');
+      this.isTomorrow = true;
+      this._getSunsetTime(now);
+      return;
+    }
 
-      // Save time.
-      this.time = results.sunset;
+    // Handle any weird case where SunCalc returns tomorrow's sunset.
+    // TODO: Is this nessecary?
+    if (!moment(sunset).isSame(now, 'day')) {
+      this.isTomorrow = true;
+    }
 
-      this.deferred.resolve(this.time);
-    });
-  }
-
-  /**
-   * Construct the path for a sunset time request.
-   * @private
-   * @returns {string} The path
-   */
-  _getSunsetPath() {
-    return `${SUNSET_PATH}?lat=${this.place.geo.lat}&lng=${this.place.geo.lng}&formatted=0`;
+    // Resolve with time for promise use.
+    this.deferred.resolve(sunset);
+    // Save time.
+    this.time = sunset;
   }
 }
 

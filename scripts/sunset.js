@@ -34,16 +34,13 @@ module.exports = (robot) => {
 
     sunsetPlace.promise
     .then((place) => {
-      sunsetTime = new SunsetTime(robot, place);
+      sunsetTime = new SunsetTime(place);
       return sunsetTime.promise;
     })
-    .then(() => sunsetTime.formattedTime)
-    .then((formattedTime) => res.send(sunsetMessages.getOneTimeSunsetMessage(formattedTime)))
+    .then(() => res.send(sunsetMessages.getOneTimeSunsetMessage(sunsetTime)))
     .catch((error) => res.send(error));
   });
 
-  // TODO: handle setting up sunset reminders for 'remind us about sunset'
-  //
   robot.respond(/remind us about sunset(?: at (.*))?$/i, (res) => {
     const room = res.message.room;
     const address = res.match[1] || DEFAULT_ADDRESS;
