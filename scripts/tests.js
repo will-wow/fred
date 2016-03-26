@@ -16,7 +16,6 @@ module.exports = (robot) => {
 
     setTimeout(function () {
       robot.messageRoom(res.message.room, 'No hashtag');
-      robot.messageRoom('#' + res.message.room, 'hashtag');
     }, 1000);
   });
 };
