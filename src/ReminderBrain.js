@@ -1,23 +1,21 @@
 'use strict';
 
 const _ = require('lodash');
+const Q = require('q');
 const CronJob = require('cron').CronJob;
 
-const SunsetPlace = require('./SunsetPlace');
-const SunsetTime = require('./SunsetTime');
-const sunsetMessages = require('./sunsetMessages');
-
-const MINUTES_BEFORE_SUNSET = 5;
-
-/** Class representing the brain's sunset reminders. */
-class SunsetBrain {
+/** Class representing daily reminders to a room. */
+class ReminderBrain {
 
   /**
    * Set a reminder for a room.
    * @param {Object} robot - The hubot robot reference.
+   * @param {string} namespace - The namespace for the reminders in the brain.
    */
-  constructor(robot) {
+  constructor(robot, namespace) {
     this.robot = robot;
+    // Get data from the opts object
+    this.namespace = namespace;
 
     // Get the reminders from storage, once they're loaded.
     this.robot.brain.on("loaded", this._onBrainLoaded.bind(this));
@@ -38,6 +36,38 @@ class SunsetBrain {
   }
 
   /**
+   * Gets the data nessecary for calculating daily reminder times, which will be persisted.
+   * If not overridden, persist no data.
+   * @returns {Object} A promise with the data.
+   */
+  getReminderData(data) {
+    return Q.resolve();
+  }
+
+  /**
+   * Gets the time for a reminder.
+   * It should return a promise, resolved with an object {time, data}.
+   * Time is the time as a Date, and data is any associated data, to be passed to getReminderMessage,
+   * like the formatted version of the time.
+   * @abstract
+   * @returns {Object} A promise with a the time data.
+   */
+  getReminderTime(data) {
+    throw new Error('You must implement getReminderTime');
+  }
+
+  /**
+   * Gets the message for a reminder. Called at reminder time.
+   * @abstract
+   * @param {Object} data - The data from getReminderData.
+   * @param {any} timeData - The data from getReminderTime.
+   * @returns {Object} A promise with the message.
+   */
+  getReminderMessage(data, timeData) {
+    throw new Error('You must implement getReminderData');
+  }
+
+  /**
    * Check if a room already has a reminder.
    * @param {string} room - The room ID
    * @returns {boolean} True if the room has a reminder.
@@ -49,19 +79,15 @@ class SunsetBrain {
   /**
    * Set a reminder for a room.
    * @param {string} room - The room ID
-   * @param {string} address - The address for the reminder.
+   * @param {any} data - The data to pass to the reminder.
    */
-  setRoomReminder(room, address) {
-    if (this.roomHasReminder(room)) {
-      return;
-    }
-
-    new SunsetPlace(address).promise
-    .then((place) => {
+  setRoomReminder(room, data) {
+    this.getReminderData(data)
+    .then((reminderData) => {
       // Set up the chron job for today.
-      this._setReminderForToday(place, room);
+      this._setReminderForToday(reminderData, room);
       // Persist the reminder.
-      this.reminders[room] = place;
+      this.reminders[room] = reminderData;
     });
   }
 
@@ -85,19 +111,19 @@ class SunsetBrain {
     }
 
     // Set up the brain for the first time, if nessecary.
-    if (!this.robot.brain.data.sunsetRoomReminders) {
-      this.robot.brain.data.sunsetRoomReminders = {};
+    if (!this.robot.brain.data[this.namespace]) {
+      this.robot.brain.data[this.namespace] = {};
     }
 
     // Stash the reminders on this for easy access.
-    this.reminders = this.robot.brain.data.sunsetRoomReminders;
+    this.reminders = this.robot.brain.data[this.namespace];
 
     // Set up today's reminders, since this is run when the robot boots up.
     this._setTodaysReminders();
   }
 
   /**
-   * Sets up cron job to check for sunsets every day. This should only every fire
+   * Sets up cron job to check for sunsets every day. The job should only every fire
    * for robots that stay up all night (so aren't on a free Heroku plan).
    */
   _setupDailyCron() {
@@ -137,36 +163,33 @@ class SunsetBrain {
   /**
    * Set a reminder job for today.
    * @private
-   * @param {Object} place
+   * @param {any} data
    * @param {string} room
    */
-  _setReminderForToday(place, room) {
+  _setReminderForToday(data, room) {
     // Cancel the existing job for the room, if there is one.
     if (this.todaysReminderJobs[room]) {
       this.todaysReminderJobs[room].stop();
     }
 
-    const sunsetTime = new SunsetTime(this.robot, place);
-
-    // Get the time for the sunset.
-    sunsetTime.promise
-    .then((time) => {
-      const sunsetDate = new Date(time);
-      const reminderDate = new Date(sunsetDate.setMinutes(sunsetDate.getMinutes() - MINUTES_BEFORE_SUNSET));
-
-      // Set up the cron job for the sunset.
+    this.getReminderTime(data)
+    .then((timeData) => {
+      // Set up the cron job for the reminder.
       this.todaysReminderJobs[room] = new CronJob({
-        cronTime: reminderDate,
+        cronTime: timeData.time,
         onTick: () => {
-          // Message the room with the sunset message.
-          this.robot.messageRoom(room, sunsetMessages.getSunsetReminderMessage(sunsetTime.getFormattedTime()));
+          // Get the message.
+          this.getReminderMessage(data, timeData.data)
+          .then((message) => {
+            // Message the room.
+            this.robot.messageRoom(room, message);
+          });
         },
         // Start immediatly.
         start: true
-        // TODO: Does this matter when we're using a Date?
-        // timeZone: this.place.timezone
       });
     });
+
   }
 
   /**
@@ -184,7 +207,4 @@ class SunsetBrain {
   }
 }
 
-module.exports = SunsetBrain;
-
-
-
+module.exports = ReminderBrain;
