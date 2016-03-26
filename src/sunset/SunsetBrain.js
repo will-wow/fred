@@ -1,6 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
+const Q = require('q');
 const CronJob = require('cron').CronJob;
 
 const ReminderBrain = require('../ReminderBrain');
@@ -23,16 +24,16 @@ class SunsetBrain extends ReminderBrain {
 
     return sunsetTime.promise
     .then((time) => {
-      const sunsetDate = new Date(time);
+      const sunsetDate = new Date(); //new Date(time);
       return {
-        time: new Date(sunsetDate.setMinutes(sunsetDate.getMinutes() - MINUTES_BEFORE_SUNSET)),
+        time: new Date(sunsetDate.setSeconds(sunsetDate.getSeconds() + 5)), //new Date(sunsetDate.setMinutes(sunsetDate.getMinutes() - MINUTES_BEFORE_SUNSET)),
         data: sunsetTime.formattedTime
       };
     });
   }
 
   getReminderMessage(data, formattedTime) {
-    return sunsetMessages.getSunsetReminderMessage(formattedTime);
+    return Q.resolve(sunsetMessages.getSunsetReminderMessage(formattedTime));
   }
 }
 

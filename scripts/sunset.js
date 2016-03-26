@@ -24,7 +24,7 @@ const sunsetMessages = require('../src/sunset/sunsetMessages');
 
 module.exports = (robot) => {
   // Initialize the SunsetBrain for data access.
-  const sunsetBrain = new SunsetBrain(robot);
+  const sunsetBrain = new SunsetBrain(robot, 'sunsetRoomReminders');
 
   robot.respond(/when is sunset(?: at (.*))?\??$/i, (res) => {
     const address = res.match[1] || DEFAULT_ADDRESS;

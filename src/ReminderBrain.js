@@ -46,8 +46,8 @@ class ReminderBrain {
 
   /**
    * Gets the time for a reminder.
-   * It should return a promise, resolved with an object {time, timeData}.
-   * Time is the time as a Date, and timeData is any associated data, to be passed to getReminderMessage,
+   * It should return a promise, resolved with an object {time, data}.
+   * Time is the time as a Date, and data is any associated data, to be passed to getReminderMessage,
    * like the formatted version of the time.
    * @abstract
    * @returns {Object} A promise with a the time data.
@@ -83,7 +83,7 @@ class ReminderBrain {
    */
   setRoomReminder(room, data) {
     this.getReminderData(data)
-    .then(function (reminderData) {
+    .then((reminderData) => {
       // Set up the chron job for today.
       this._setReminderForToday(reminderData, room);
       // Persist the reminder.
@@ -173,13 +173,13 @@ class ReminderBrain {
     }
 
     this.getReminderTime(data)
-    .then((time) => {
+    .then((timeData) => {
       // Set up the cron job for the reminder.
       this.todaysReminderJobs[room] = new CronJob({
-        cronTime: time,
+        cronTime: timeData.time,
         onTick: () => {
           // Get the message.
-          this.getReminderMessage(data)
+          this.getReminderMessage(data, timeData.data)
           .then((message) => {
             // Message the room.
             this.robot.messageRoom(room, message);
