@@ -29,15 +29,10 @@ module.exports = (robot) => {
   robot.respond(/when is sunset(?: at (.*))?\??$/i, (res) => {
     const address = res.match[1] || DEFAULT_ADDRESS;
     const sunsetPlace = new SunsetPlace(address);
-    /** @type {SunsetPlace} */
-    let sunsetTime;
 
     sunsetPlace.promise
-    .then((place) => {
-      sunsetTime = new SunsetTime(place);
-      return sunsetTime.promise;
-    })
-    .then(() => res.send(sunsetMessages.getOneTimeSunsetMessage(sunsetTime)))
+    .then((place) => new SunsetTime(place).promise)
+    .then((sunsetTime) => res.send(sunsetMessages.getOneTimeSunsetMessage(sunsetTime)))
     .catch((error) => res.send(error));
   });
 

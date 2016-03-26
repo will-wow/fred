@@ -73,7 +73,7 @@ class SunsetTime {
     }
 
     // Resolve with time for promise use.
-    this.deferred.resolve(sunset);
+    this.deferred.resolve(this);
     // Save time.
     this.time = sunset;
   }
