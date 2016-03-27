@@ -11,7 +11,7 @@
  * @param {string} defaultAddress
  * @returns {string}
  */
-exports.getExistingRoomMessage = (address, defaultAddress) => {
+export function getExistingRoomMessage(address, defaultAddress) {
   const messageAddress = address === defaultAddress ?
     '' :
     `at ${address} test`;
@@ -28,7 +28,7 @@ exports.getExistingRoomMessage = (address, defaultAddress) => {
  * @param {SunsetTime} sunsetTime - a SunsetTime instance.
  * @returns {string}
  */
-exports.getOneTimeSunsetMessage = (sunsetTime) => {
+export function getOneTimeSunsetMessage(sunsetTime) {
   return `${sunsetTime.isTomorrow ? 'Tomorrow' : 'Tonight'}, sunset starts at ${sunsetTime.formattedTime} :sunrise_over_mountains:`;
 };
 
@@ -37,7 +37,7 @@ exports.getOneTimeSunsetMessage = (sunsetTime) => {
  * @param {string} formattedTime
  * @returns {string}
  */
-exports.getSunsetReminderMessage = (formattedTime) => {
+export function getSunsetReminderMessage(formattedTime) {
   return `Sunset starts in 5 minutes, at ${formattedTime} :sunrise_over_mountains:`;
 };
 
@@ -45,7 +45,7 @@ exports.getSunsetReminderMessage = (formattedTime) => {
  * The message for setting a sunset reminder.
  * @returns {string}
  */
-exports.getSunsetReminderSetMessage = () => {
+export function getSunsetReminderSetMessage() {
   return `Okay, setting sunset reminders!`;
 };
 
@@ -53,7 +53,7 @@ exports.getSunsetReminderSetMessage = () => {
  * The message for removing a sunset reminder.
  * @returns {string}
  */
-exports.getSunsetReminderClearMessage = () => {
+export function getSunsetReminderClearMessage() {
   return `Alright, no more sunsets here...`;
 };
 
@@ -61,6 +61,6 @@ exports.getSunsetReminderClearMessage = () => {
  * The message for not finding a sunset reminder to remove.
  * @returns {string}
  */
-exports.getSunsetReminderClearFailMessage = () => {
+export function getSunsetReminderClearFailMessage() {
   return `That was easy, I wasn't tracking sunsets here anyway!`;
 };

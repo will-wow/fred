@@ -1,9 +1,9 @@
 'use strict';
 
-const _ = require('lodash');
-const Q = require('q');
-const SunCalc = require('suncalc');
-const moment = require('moment-timezone');
+import _ = require('lodash');
+import Q = require('q');
+import SunCalc = require('suncalc');
+import moment = require('moment-timezone');
 
 const SUNSET_BASE_URL = 'http://api.sunrise-sunset.org';
 const SUNSET_PATH = 'json';
@@ -79,4 +79,4 @@ class SunsetTime {
   }
 }
 
-module.exports = SunsetTime;
+export = SunsetTime;

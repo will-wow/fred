@@ -1,13 +1,12 @@
 'use strict';
 
-const _ = require('lodash');
-const Q = require('q');
-const CronJob = require('cron').CronJob;
+import _ = require('lodash');
+import Q = require('q');
 
-const ReminderBrain = require('../ReminderBrain');
-const SunsetPlace = require('./SunsetPlace');
-const SunsetTime = require('./SunsetTime');
-const sunsetMessages = require('./sunsetMessages');
+import ReminderBrain = require('../shared/ReminderBrain');
+import SunsetPlace = require('./SunsetPlace');
+import SunsetTime = require('./SunsetTime');
+import sunsetMessages = require('./sunsetMessages');
 
 const MINUTES_BEFORE_SUNSET = 5;
 /**
@@ -36,7 +35,7 @@ class SunsetBrain extends ReminderBrain {
   }
 }
 
-module.exports = SunsetBrain;
+export = SunsetBrain;
 
 
 

@@ -1,12 +1,13 @@
 'use strict';
 
-const _ = require('lodash');
-const Q = require('q');
-const tzwhere = require('tzwhere');
+import _ = require('lodash');
+import Q = require('q');
+import tzwhere = require('tzwhere');
+import geocoderModule = require('node-geocoder');
 
 const geocoderProvider = 'google';
 const httpAdapter = 'http';
-const geocoder = require('node-geocoder')(geocoderProvider, httpAdapter);
+const geocoder = geocoderModule(geocoderProvider, httpAdapter);
 
 // Initialize the timezone lookup library.
 tzwhere.init();
@@ -68,4 +69,4 @@ class SunsetPlace {
   }
 }
 
-module.exports = SunsetPlace;
+export = SunsetPlace;

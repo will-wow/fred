@@ -1,8 +1,10 @@
 'use strict';
 
-const _ = require('lodash');
-const Q = require('q');
-const CronJob = require('cron').CronJob;
+import _ = require('lodash');
+import Q = require('q');
+import cron = require('cron');
+
+const CronJob = cron.CronJob;
 
 /** Class representing daily reminders to a room. */
 class ReminderBrain {
@@ -207,4 +209,4 @@ class ReminderBrain {
   }
 }
 
-module.exports = ReminderBrain;
+export = ReminderBrain;

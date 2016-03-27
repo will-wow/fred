@@ -17,12 +17,12 @@
 
 const DEFAULT_ADDRESS = process.env.HUBOT_SUNSET_DEFAULT_ADDRESS || '1100 Glendon Ave, Los Angeles, CA 90024';
 
-const SunsetBrain = require('../src/sunset/SunsetBrain');
-const SunsetPlace = require('../src/sunset/SunsetPlace');
-const SunsetTime = require('../src/sunset/SunsetTime');
-const sunsetMessages = require('../src/sunset/sunsetMessages');
+import SunsetBrain = require('./lib/sunset/SunsetBrain');
+import SunsetPlace = require('./lib/sunset/SunsetPlace');
+import SunsetTime = require('./lib/sunset/SunsetTime');
+import sunsetMessages = require('./lib/sunset/sunsetMessages');
 
-module.exports = (robot) => {
+export = (robot) => {
   // Initialize the SunsetBrain for data access.
   const sunsetBrain = new SunsetBrain(robot, 'sunsetRoomReminders');
 
