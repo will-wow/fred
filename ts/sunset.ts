@@ -17,16 +17,27 @@
 
 const DEFAULT_ADDRESS = process.env.HUBOT_SUNSET_DEFAULT_ADDRESS || '1100 Glendon Ave, Los Angeles, CA 90024';
 
-import SunsetBrain = require('./lib/sunset/SunsetBrain');
-import SunsetPlace = require('./lib/sunset/SunsetPlace');
-import SunsetTime = require('./lib/sunset/SunsetTime');
-import sunsetMessages = require('./lib/sunset/sunsetMessages');
+import SunsetBrain from './lib/sunset/SunsetBrain';
+import SunsetPlace from './lib/sunset/SunsetPlace';
+import SunsetTime from './lib/sunset/SunsetTime';
+import * as sunsetMessages from './lib/sunset/sunsetMessages';
+import {Robot} from './lib/shared/ReminderBrain';
 
-export = (robot) => {
+interface HubotMessage {
+  room: string
+}
+
+interface HubotRes {
+  match: Function
+  send: Function
+  message: HubotMessage
+}
+
+export = (robot: Robot) => {
   // Initialize the SunsetBrain for data access.
   const sunsetBrain = new SunsetBrain(robot, 'sunsetRoomReminders');
 
-  robot.respond(/when is sunset(?: at (.*))?\??$/i, (res) => {
+  robot.respond(/when is sunset(?: at (.*))?\??$/i, (res: HubotRes) => {
     const address = res.match[1] || DEFAULT_ADDRESS;
     const sunsetPlace = new SunsetPlace(address);
 
@@ -36,20 +47,20 @@ export = (robot) => {
     .catch((error) => res.send(error));
   });
 
-  robot.respond(/remind us about sunset(?: at (.*))?$/i, (res) => {
-    const room = res.message.room;
-    const address = res.match[1] || DEFAULT_ADDRESS;
+  robot.respond(/remind us about sunset(?: at (.*))?$/i, (res: HubotRes) => {
+    const room: string = res.message.room;
+    const address: string = res.match[1] || DEFAULT_ADDRESS;
 
     // Handle an existing room reminder.
     if (sunsetBrain.roomHasReminder(room)) {
-      res.send(sunsetMessages.getExistingRoomMessage());
+      res.send(sunsetMessages.getExistingRoomMessage(address, DEFAULT_ADDRESS));
       return;
     }
     sunsetBrain.setRoomReminder(room, address);
     res.send(sunsetMessages.getSunsetReminderSetMessage());
   });
 
-  robot.respond(/stop reminding us about sunset/i, (res) => {
+  robot.respond(/stop reminding us about sunset/i, (res: HubotRes) => {
     const room = res.message.room;
 
     if (!sunsetBrain.roomHasReminder(room)) {

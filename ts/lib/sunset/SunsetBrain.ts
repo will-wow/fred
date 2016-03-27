@@ -1,41 +1,42 @@
 'use strict';
 
 import _ = require('lodash');
-import Q = require('q');
 
-import ReminderBrain = require('../shared/ReminderBrain');
-import SunsetPlace = require('./SunsetPlace');
-import SunsetTime = require('./SunsetTime');
-import sunsetMessages = require('./sunsetMessages');
+import ReminderBrain, {ReminderTime} from '../shared/ReminderBrain';
+import SunsetPlace from './SunsetPlace';
+import SunsetTime from './SunsetTime';
+import * as sunsetMessages from './sunsetMessages';
 
-const MINUTES_BEFORE_SUNSET = 5;
+import Deferred from '../Deferred';
+
+const MINUTES_BEFORE_SUNSET: number = 5;
 /**
  * Class representing the brain's sunset reminders.
  * @extends ReminderBrain
  */
 class SunsetBrain extends ReminderBrain {
-  getReminderData(address) {
+  getReminderData(address: string): Promise<SunsetPlace> {
     return new SunsetPlace(address).promise;
   }
 
-  getReminderTime(place) {
+  getReminderTime(place: SunsetPlace): Promise<ReminderTime> {
     // Use the promise for SunsetTime, so we can .catch errors down the line.
     return new SunsetTime(place).promise.then((sunsetTime) => {
-      const sunsetDate = new Date(sunsetTime.time);
+      const sunsetDate: moment.Moment = sunsetTime.time;
 
       return {
-        time: new Date(sunsetDate.setMinutes(sunsetDate.getMinutes() - MINUTES_BEFORE_SUNSET)),
+        time: sunsetDate.clone().subtract(MINUTES_BEFORE_SUNSET, 'minutes'),
         data: sunsetTime.formattedTime
       };
     });
   }
 
-  getReminderMessage(data, formattedTime) {
-    return Q.resolve(sunsetMessages.getSunsetReminderMessage(formattedTime));
+  getReminderMessage(data: any, formattedTime: string): Promise<string> {
+    return Promise.resolve(sunsetMessages.getSunsetReminderMessage(formattedTime));
   }
 }
 
-export = SunsetBrain;
+export default SunsetBrain;
 
 
 

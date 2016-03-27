@@ -23,7 +23,7 @@
     "hubot-trello": "^0.1.1",
     "lodash": "^4.6.1",
     "moment": "^2.12.0",
-    "moment-timezone": "^0.5.2",
+    "moment-timezone": "^0.5.3",
     "node-geocoder": "^3.9.0",
     "q": "^1.4.1",
     "suncalc": "^1.7.0",

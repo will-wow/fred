@@ -1,5 +1,7 @@
 'use strict';
 
+import SunsetTime from './SunsetTime';
+
 /**
  * Utils for generating sunset messages.
  * @module sunsetMessages
@@ -11,7 +13,7 @@
  * @param {string} defaultAddress
  * @returns {string}
  */
-export function getExistingRoomMessage(address, defaultAddress) {
+export function getExistingRoomMessage(address: string, defaultAddress: string) {
   const messageAddress = address === defaultAddress ?
     '' :
     `at ${address} test`;
@@ -28,7 +30,7 @@ export function getExistingRoomMessage(address, defaultAddress) {
  * @param {SunsetTime} sunsetTime - a SunsetTime instance.
  * @returns {string}
  */
-export function getOneTimeSunsetMessage(sunsetTime) {
+export function getOneTimeSunsetMessage(sunsetTime: SunsetTime) {
   return `${sunsetTime.isTomorrow ? 'Tomorrow' : 'Tonight'}, sunset starts at ${sunsetTime.formattedTime} :sunrise_over_mountains:`;
 };
 

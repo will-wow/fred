@@ -1,9 +1,11 @@
 'use strict';
 
 import _ = require('lodash');
-import Q = require('q');
-import SunCalc = require('suncalc');
 import moment = require('moment-timezone');
+var SunCalc = require('suncalc');
+
+import Deferred from '../Deferred';
+import SunsetPlace from './SunsetPlace'
 
 const SUNSET_BASE_URL = 'http://api.sunrise-sunset.org';
 const SUNSET_PATH = 'json';
@@ -14,18 +16,23 @@ function isValidDate(date) {
 
 /** Represents sunset's time */
 class SunsetTime {
+  public promise: Promise<SunsetTime>;
+  public time: moment.Moment;
+  public isTomorrow: boolean;
+  private deferred: Deferred;
+  private place: SunsetPlace;
+
   /**
    * @param {Object} place
    */
   constructor(place) {
-    /** @private */
-    this.deferred = Q.defer();
+    // Support using this instance as a promise.
+    this.deferred = new Deferred();
+    this.promise = this.deferred.promise;
 
-    /** @private */
+    // Store the place.
     this.place = place;
 
-    // Supports using this instance as a promise.
-    this.promise = this.deferred.promise;
     this.time = undefined;
     this.isTomorrow = false;
 
@@ -34,20 +41,16 @@ class SunsetTime {
 
   /**
    * Time formatted with the timezone from the place.
-   * @type {string}
    */
-  get formattedTime() {
-    return moment(this.time).tz(this.place.timezone).format('h:mm a');
+  get formattedTime(): string {
+    return this.time.format('h:mm a');
   }
 
   /**
    * Gets the sunset time for today.
-   * @private
-   * @param {Object=} date - A date to calculate sunset for.
-   * @param {Object} place - The place data.
    */
-  _getSunsetTime() {
-    const now = moment().tz(this.place.timezone);
+  private _getSunsetTime() {
+    const now = moment.tz(this.place.timezone);
     const results = SunCalc.getTimes(now, this.place.geo.lat, this.place.geo.lng);
     const sunset = results.sunsetStart;
     // Bad data returns an invalid date, so do nothing in that case.
@@ -58,14 +61,14 @@ class SunsetTime {
 
     // Handle any weird case where SunCalc returns tomorrow's sunset.
     // TODO: Is this nessecary?
-    if (!moment(sunset).isSame(now, 'day')) {
+    if (!moment.tz(sunset, this.place.timezone).isSame(now, 'day')) {
       this.isTomorrow = true;
     }
     // Resolve with time for promise use.
     this.deferred.resolve(this);
     // Save time.
-    this.time = sunset;
+    this.time = moment.tz(sunset, this.place.timezone);
   }
 }
 
-export = SunsetTime;
+export default SunsetTime;

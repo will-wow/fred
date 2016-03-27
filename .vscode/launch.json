@@ -2,12 +2,12 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
-            "name": "Attach to Baat",
-            "type": "node",
-            "request": "attach",
-            "port": 5858,
-            "sourceMaps": true,
-            "outDir": "${workspaceRoot}/scripts"
-        }
+      "name": "Attach to Baat",
+      "type": "node",
+      "request": "attach",
+      "port": 5858,
+      "sourceMaps": true,
+      "outDir": "${workspaceRoot}/scripts"
+    }
 	]
 }
