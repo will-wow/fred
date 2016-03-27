@@ -32,11 +32,10 @@ module.exports = (robot) => {
 		  limit: limit,
 		  terms: randomSearch
 		  
-		}).then( (data) => {	
-			
+		}).then( (data) => {				
 		  var number = Math.floor(feelingLucky(0 , limit));
 		  var result = data.businesses[number].url;
-		  console.log(result);
+		  res.send(result);
 		  
 		});		
 	});
