@@ -1,49 +1,49 @@
 'use strict';
 
-const _ = require('lodash');
-const Q = require('q');
-const tzwhere = require('tzwhere');
+import _ = require('lodash');
+var tzwhere = require('tzwhere');
+var geocoderModule = require('node-geocoder');
+
+import Deferred from '../Deferred';
 
 const geocoderProvider = 'google';
 const httpAdapter = 'http';
-const geocoder = require('node-geocoder')(geocoderProvider, httpAdapter);
+const geocoder = geocoderModule(geocoderProvider, httpAdapter);
 
 // Initialize the timezone lookup library.
 tzwhere.init();
 
+interface Geo {
+  lat: string
+  lng: string
+}
+
 /** Represents a place */
 class SunsetPlace {
+  public promise: Promise<SunsetPlace>
+  public geo: Geo
+  public timezone: string
 
+  private deferred: Deferred
+  private address: string
   /**
    * @param {string} address
    */
   constructor(address) {
     /** @private */
-    this.deferred = Q.defer();
+    this.deferred = new Deferred();
     this.address = address;
 
     this.promise = this.deferred.promise;
-    this.geo = undefined;
-    this.timezone = undefined;
 
     this.findPlace();
-  }
-
-  /**
-   * @returns {Object} {geo, timezone}
-   */
-  getPlace() {
-    return {
-      geo: this.geo,
-      timezone: this.timezone
-    };
   }
 
   /**
    * Calculate the place from the address.
    * @private
    */
-  findPlace() {
+  private findPlace() {
     return geocoder.geocode(this.address)
       .then((res) => {
 
@@ -52,20 +52,20 @@ class SunsetPlace {
         }
 
         // Pull out the coordinates of the address, and format them for sunrise-sunset.org.
-        const geo = {
+        const geo: Geo = {
           lat: res[0].latitude,
           lng: res[0].longitude
         };
 
         // Look up the timezone for the place, and save that for formatting later.
-        const timezone = tzwhere.tzNameAt(geo.lat, geo.lng);
+        const timezone: string = tzwhere.tzNameAt(geo.lat, geo.lng);
 
         this.geo = geo;
         this.timezone = timezone;
 
-        this.deferred.resolve(this.getPlace());
+        this.deferred.resolve(this);
       });
   }
 }
 
-module.exports = SunsetPlace;
+export default SunsetPlace;

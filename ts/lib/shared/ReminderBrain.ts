@@ -1,18 +1,41 @@
 'use strict';
 
-const _ = require('lodash');
-const Q = require('q');
-const CronJob = require('cron').CronJob;
+import _ = require('lodash');
+import cron = require('cron');
+
+const CronJob = cron.CronJob;
+
+// Interface for the return from getReminderTime.
+export interface ReminderTime {
+  time: moment.Moment
+  data: any
+}
+
+// Set up interface for robot.
+// TODO: Make a defintion file instead.
+interface RobotBrain {
+  on: Function
+  data: Object
+}
+export interface Robot {
+  brain: RobotBrain
+  messageRoom: Function,
+  respond: Function
+}
 
 /** Class representing daily reminders to a room. */
-class ReminderBrain {
+abstract class ReminderBrain {
+  private robot: Robot
+  private namespace: string
+  private reminders: Object
+  private todaysReminderJobs: Object
 
   /**
    * Set a reminder for a room.
    * @param {Object} robot - The hubot robot reference.
    * @param {string} namespace - The namespace for the reminders in the brain.
    */
-  constructor(robot, namespace) {
+  constructor(robot: Robot, namespace: string) {
     this.robot = robot;
     // Get data from the opts object
     this.namespace = namespace;
@@ -38,50 +61,35 @@ class ReminderBrain {
   /**
    * Gets the data nessecary for calculating daily reminder times, which will be persisted.
    * If not overridden, persist no data.
-   * @returns {Object} A promise with the data.
    */
-  getReminderData(data) {
-    return Q.resolve();
+  getReminderData(data: any): Promise<any> {
+    return Promise.resolve();
   }
 
   /**
    * Gets the time for a reminder.
    * It should return a promise, resolved with an object {time, data}.
-   * Time is the time as a Date, and data is any associated data, to be passed to getReminderMessage,
+   * Time is the time as a Moment, and data is any associated data, to be passed to getReminderMessage,
    * like the formatted version of the time.
-   * @abstract
-   * @returns {Object} A promise with a the time data.
    */
-  getReminderTime(data) {
-    throw new Error('You must implement getReminderTime');
-  }
+  abstract getReminderTime(data: any): Promise<ReminderTime>
 
   /**
    * Gets the message for a reminder. Called at reminder time.
-   * @abstract
-   * @param {Object} data - The data from getReminderData.
-   * @param {any} timeData - The data from getReminderTime.
-   * @returns {Object} A promise with the message.
    */
-  getReminderMessage(data, timeData) {
-    throw new Error('You must implement getReminderData');
-  }
+  abstract getReminderMessage(data: any, timeData: any): Promise<string>
 
   /**
    * Check if a room already has a reminder.
-   * @param {string} room - The room ID
-   * @returns {boolean} True if the room has a reminder.
    */
-  roomHasReminder(room) {
+  roomHasReminder(room: string): boolean {
     return Boolean(this.reminders[room]);
   }
 
   /**
-   * Set a reminder for a room.
-   * @param {string} room - The room ID
-   * @param {any} data - The data to pass to the reminder.
+   * Set a reminder for a room, using some data.
    */
-  setRoomReminder(room, data) {
+  setRoomReminder(room: string, data: any): void {
     this.getReminderData(data)
     .then((reminderData) => {
       // Set up the chron job for today.
@@ -95,7 +103,7 @@ class ReminderBrain {
    * Turn off a room reminder.
    * @param {string} room
    */
-  clearRoomReminder(room) {
+  clearRoomReminder(room: string): void {
     delete this.reminders[room];
     this._clearReminderForToday(room);
   }
@@ -104,7 +112,7 @@ class ReminderBrain {
    * Runs once the robot.brain has loaded. Puts the reminders on this,
    * and sets up jobs for any exisitng reminders.
    */
-  _onBrainLoaded() {
+  private _onBrainLoaded(): void {
     if (this.reminders) {
       // No double setup.
       return;
@@ -126,7 +134,7 @@ class ReminderBrain {
    * Sets up cron job to check for sunsets every day. The job should only every fire
    * for robots that stay up all night (so aren't on a free Heroku plan).
    */
-  _setupDailyCron() {
+  private _setupDailyCron(): void {
     new CronJob({
       // Run at 1am every day.
       cronTime: '0 0 1 * * *',
@@ -138,9 +146,8 @@ class ReminderBrain {
 
   /**
    * Clear all reminder jobs for the day.
-   * @private
    */
-  _clearReminders() {
+  private _clearReminders(): void {
     // Clear yesterday's reminder jobs.
     _.forOwn(this.todaysReminderJobs, (place, room) => {
       this._clearReminderForToday(room);
@@ -152,9 +159,8 @@ class ReminderBrain {
 
   /**
    * Set up reminder jobs for today.
-   * @private
    */
-  _setTodaysReminders() {
+  private _setTodaysReminders(): void {
     this._clearReminders();
     // Set up new ones for today.
     _.forOwn(this.reminders, this._setReminderForToday.bind(this));
@@ -162,11 +168,8 @@ class ReminderBrain {
 
   /**
    * Set a reminder job for today.
-   * @private
-   * @param {any} data
-   * @param {string} room
    */
-  _setReminderForToday(data, room) {
+  private _setReminderForToday(data: any, room: string): void {
     // Cancel the existing job for the room, if there is one.
     if (this.todaysReminderJobs[room]) {
       this.todaysReminderJobs[room].stop();
@@ -176,7 +179,7 @@ class ReminderBrain {
     .then((timeData) => {
       // Set up the cron job for the reminder.
       this.todaysReminderJobs[room] = new CronJob({
-        cronTime: timeData.time,
+        cronTime: timeData.time.toDate(),
         onTick: () => {
           // Get the message.
           this.getReminderMessage(data, timeData.data)
@@ -194,10 +197,8 @@ class ReminderBrain {
 
   /**
    * Unset a reminder job for today.
-   * @private
-   * @param {string} room
    */
-  _clearReminderForToday(room) {
+  private _clearReminderForToday(room: string): void {
     if (!this.todaysReminderJobs[room]) {
       return;
     }
@@ -207,4 +208,4 @@ class ReminderBrain {
   }
 }
 
-module.exports = ReminderBrain;
+export default ReminderBrain;
