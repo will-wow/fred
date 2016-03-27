@@ -46,23 +46,13 @@ class SunsetTime {
    * @param {Object=} date - A date to calculate sunset for.
    * @param {Object} place - The place data.
    */
-  _getSunsetTime(now) {
-    now = now || moment().tz(this.place.timezone);
-
-    const results = SunCalc.getTimes(new Date(), this.place.geo.lat, this.place.geo.lng);
+  _getSunsetTime() {
+    const now = moment().tz(this.place.timezone);
+    const results = SunCalc.getTimes(now, this.place.geo.lat, this.place.geo.lng);
     const sunset = results.sunsetStart;
-
     // Bad data returns an invalid date, so do nothing in that case.
     if (!isValidDate(sunset)) {
       this.deferred.reject();
-      return;
-    }
-
-    // If sunset has already happened, get it for tomorrow instead.
-    if (moment(sunset).tz(this.place.timezone).isBefore(now)) {
-      now.add(1, 'days');
-      this.isTomorrow = true;
-      this._getSunsetTime(now);
       return;
     }
 
@@ -71,7 +61,6 @@ class SunsetTime {
     if (!moment(sunset).isSame(now, 'day')) {
       this.isTomorrow = true;
     }
-
     // Resolve with time for promise use.
     this.deferred.resolve(this);
     // Save time.

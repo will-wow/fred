@@ -1,8 +1,8 @@
 #!/bin/sh
 
-set -e
+# set -e
 
 export PATH="node_modules/.bin:node_modules/hubot/node_modules/.bin:$PATH"
 
-
+node_modules/typescript/bin/tsc
 coffee --nodejs --debug node_modules/.bin/hubot --name "baat"

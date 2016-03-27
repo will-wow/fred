@@ -4,6 +4,9 @@
   "private": true,
   "author": "Will Lee-Wagner <wleewagner@assetavenue.com>",
   "description": "A simple helpful robot for your Company",
+  "devDependencies": {
+    "typescript": "^1.9.0-dev.20160306"
+  },
   "dependencies": {
     "cron": "^1.1.0",
     "dotenv": "^2.0.0",
