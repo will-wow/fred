@@ -5,6 +5,5 @@
   "hubot-google-translate",
   "hubot-pugme",
   "hubot-redis-brain",
-  "hubot-plusplus",
-  "hubot-trello"
+  "hubot-plusplus"
 ]
