@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "noImplicitAny": false,
+    "rootDir": "ts",
+    "sourceRoot": "ts",
+    "outDir": "scripts"
+  },
+  "exclude": [
+    "node_modules",
+    "bin",
+    ".vscode",
+    "typings/browser",
+    "typings/browser.d.ts"
+  ]
+}
