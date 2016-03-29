@@ -1,7 +1,5 @@
 const gulp = require('gulp');
-const gulpsync = require('gulp-sync')(gulp);
 const del = require('del');
-const shell = require('gulp-shell');
 
 
 gulp.task('clean', () => {
