@@ -179,6 +179,9 @@ You'll need to edit the `Procfile` to set the name of your hubot.
 More detailed documentation can be found on the [deploying hubot onto
 Heroku][deploy-heroku] wiki page.
 
+So Heroku will install the devDependencies for building, you'll need to run
+    $ heroku config:set NPM_CONFIG_PRODUCTION=false
+
 ### Deploying to UNIX or Windows
 
 If you would like to deploy to either a UNIX operating system or Windows.
