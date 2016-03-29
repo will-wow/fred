@@ -194,9 +194,9 @@ declare module hubot {
     data: Object
     autoSave: boolean
 
-    set(key: any, value: any): Brain
+    //set(key: any, value: any): Brain
     get(key: any): any
-    remove(key: any): Brain
+    //remove(key: any): Brain
     save(): void
     close(): void
     setAutoSave(enabled: boolean): void
