@@ -19,10 +19,10 @@ interface Rooms {
 };
 
 const ROOMS: Rooms = {
-  sunset: ['south east', 'triangle'],
-  Venice: ['south west'],
-  hollywood: ['north east'],
-  'one more': ['far south west', 'reception']
+  sunset: ['triangle', 'south east'],
+  venice: ['workout', 'standup', 'playstation', 'couch', 'south west'],
+  hollywood: ['corner', 'north east'],
+  mulholland: ['reception', 'other']
 };
 
 function joinRoomNames(names: string[]): string {
@@ -52,11 +52,11 @@ function getRoomNames(room: string, nameToExclude?: string): string {
 export = (robot: hubot.Robot) => {
   robot.respond(/(?:list the rooms|what are the rooms)\??$/i, (res: hubot.Response) => {
     res.send(
-      '*The rooms are:*',
-      `Sunset: ${getRoomNames('sunset')}`,
+      `*The rooms are:*
+      Sunset: ${getRoomNames('sunset')}`,
       `Venice: ${getRoomNames('venice')}`,
       `Hollywood: ${getRoomNames('hollywood')}`,
-      `One more: ${getRoomNames('one more')}`
+      `Mulholland: ${getRoomNames('mulholland')}`
     );
   });
 
@@ -85,11 +85,6 @@ export = (robot: hubot.Robot) => {
     }
 
     // Room found. Return its name, and its other aliases.
-    if (getRoomNames(roomName, name).length) {
-      res.send(`${roomName}, also known as ${getRoomNames(roomName, name)}`);
-    } else {
-      res.send(`${roomName}`);
-    }
-
+    res.send(`That's ${roomName}.`);
   });
 };
