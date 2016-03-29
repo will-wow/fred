@@ -3,5 +3,4 @@ node_modules
 .hubot_history
 typings
 .env
-scripts/**/*.js.map
-scripts/**/*.js
+scripts
