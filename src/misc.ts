@@ -34,6 +34,7 @@ export = (robot: Robot) => {
     const room: string = res.match[2];
 
     robot.messageRoom(room, message);
+    robot.send('Done.')
   });
 
 
