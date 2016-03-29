@@ -10,8 +10,8 @@ import SunsetPlace from './SunsetPlace'
 const SUNSET_BASE_URL = 'http://api.sunrise-sunset.org';
 const SUNSET_PATH = 'json';
 
-function isValidDate(date) {
-  return isFinite(date);
+function isValidDate(date: Date) {
+  return isFinite(date.valueOf());
 }
 
 /** Represents sunset's time */

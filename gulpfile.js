@@ -9,17 +9,9 @@ gulp.task('clean', () => {
 });
 
 // Copy over the coffeescript files from src directly.
-gulp.task('copy-coffee', () => {
+gulp.task('coffee', ['clean'], () => {
   return gulp.src(
     '**/*.coffee',
     {base: "src"}
   ).pipe(gulp.dest('scripts'));
 });
-
-gulp.task('typescript', shell.task([
-  'node_modules/typescript/bin/tsc'
-]));
-
-
-gulp.task('compile', gulpsync.sync(['copy-coffee', 'typescript']));
-gulp.task('default', gulpsync.sync(['clean', 'compile']));

@@ -4,5 +4,6 @@
 
 export PATH="node_modules/.bin:node_modules/hubot/node_modules/.bin:$PATH"
 
-gulp
+gulp coffee
+node_modules/typescript/bin/tsc
 coffee --nodejs --debug node_modules/.bin/hubot --name "baat"

@@ -19,23 +19,12 @@ import SunsetBrain from './lib/sunset/SunsetBrain';
 import SunsetPlace from './lib/sunset/SunsetPlace';
 import SunsetTime from './lib/sunset/SunsetTime';
 import * as sunsetMessages from './lib/sunset/sunsetMessages';
-import {Robot} from './lib/shared/ReminderBrain';
 
-interface HubotMessage {
-  room: string
-}
-
-interface HubotRes {
-  match: Function
-  send: Function
-  message: HubotMessage
-}
-
-export = (robot: Robot) => {
+export = (robot: hubot.Robot) => {
   // Initialize the SunsetBrain for data access.
   const sunsetBrain = new SunsetBrain(robot, 'sunsetRoomReminders');
 
-  robot.respond(/when is sunset(?: at (.*))?\??$/i, (res: HubotRes) => {
+  robot.respond(/when is sunset(?: at (.*))?\??$/i, (res: hubot.Response) => {
     const address = res.match[1] || DEFAULT_ADDRESS;
     const sunsetPlace = new SunsetPlace(address);
 
@@ -45,7 +34,7 @@ export = (robot: Robot) => {
     .catch((error) => res.send(error));
   });
 
-  robot.respond(/remind (?:us|me) about sunset(?: at (.*))?$/i, (res: HubotRes) => {
+  robot.respond(/remind (?:us|me) about sunset(?: at (.*))?$/i, (res: hubot.Response) => {
     const room: string = res.message.room;
     const address: string = res.match[1] || DEFAULT_ADDRESS;
 
@@ -58,7 +47,7 @@ export = (robot: Robot) => {
     res.send(sunsetMessages.getSunsetReminderSetMessage());
   });
 
-  robot.respond(/stop reminding (?:us|me) about sunset/i, (res: HubotRes) => {
+  robot.respond(/stop reminding (?:us|me) about sunset/i, (res: hubot.Response) => {
     const room = res.message.room;
 
     if (!sunsetBrain.roomHasReminder(room)) {
