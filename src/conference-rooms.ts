@@ -52,11 +52,11 @@ function getRoomNames(room: string, nameToExclude?: string): string {
 export = (robot: hubot.Robot) => {
   robot.respond(/(?:list the rooms|what are the rooms)\??$/i, (res: hubot.Response) => {
     res.send(
-      `*The rooms are:*
-      Sunset: ${getRoomNames('sunset')}`,
-      `Venice: ${getRoomNames('venice')}`,
-      `Hollywood: ${getRoomNames('hollywood')}`,
-      `Mulholland: ${getRoomNames('mulholland')}`
+`*The rooms are:*
+Sunset: ${getRoomNames('sunset')}
+Venice: ${getRoomNames('venice')}
+Hollywood: ${getRoomNames('hollywood')}
+Mulholland: ${getRoomNames('mulholland')}`
     );
   });
 
