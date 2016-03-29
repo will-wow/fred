@@ -1,19 +1,17 @@
-'use strict';
-
-// Description
+// Description:
 //   Set a sunset alert for a channel.
 //
 // Commands:
-//  hubot remind us about sunset - Set a sunset alert for the channel.
-//  hubot remind us about sunset at <address> - Set a sunset alert for the channel at the address.
-//  hubot when is sunset - Reply's with today's sunset time at the default address.
-//  hubot when is sunset at <address> - Reply's with today's sunset time at the address.
+//   hubot remind (us|me) about sunset - Set a sunset alert for the channel.
+//   hubot remind (?:us|me) about sunset at <address> - Set a sunset alert for the channel at the address.
+//   hubot when is sunset - Reply's with today's sunset time at the default address.
+//   hubot when is sunset at <address> - Reply's with today's sunset time at the address.
 //
 // Configuration:
-//  HUBOT_SUNSET_DEFAULT_ADDRESS: required
+//   HUBOT_SUNSET_DEFAULT_ADDRESS: required
 //
 // Author:
-//  Will Lee-Wagner <will@assetavenue.com>
+//   Will Lee-Wagner <will@assetavenue.com>
 
 const DEFAULT_ADDRESS = process.env.HUBOT_SUNSET_DEFAULT_ADDRESS || '1100 Glendon Ave, Los Angeles, CA 90024';
 
@@ -47,7 +45,7 @@ export = (robot: Robot) => {
     .catch((error) => res.send(error));
   });
 
-  robot.respond(/remind us about sunset(?: at (.*))?$/i, (res: HubotRes) => {
+  robot.respond(/remind (?:us|me) about sunset(?: at (.*))?$/i, (res: HubotRes) => {
     const room: string = res.message.room;
     const address: string = res.match[1] || DEFAULT_ADDRESS;
 
@@ -60,7 +58,7 @@ export = (robot: Robot) => {
     res.send(sunsetMessages.getSunsetReminderSetMessage());
   });
 
-  robot.respond(/stop reminding us about sunset/i, (res: HubotRes) => {
+  robot.respond(/stop reminding (?:us|me) about sunset/i, (res: HubotRes) => {
     const room = res.message.room;
 
     if (!sunsetBrain.roomHasReminder(room)) {

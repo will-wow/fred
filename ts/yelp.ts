@@ -1,4 +1,13 @@
-'use strict';
+// Description:
+//   Decides on lunch.
+//
+// Commands:
+//   hubot yelp me baby - Replies with the yelp link to a local restaurant.
+//
+// Configuration:
+//
+// Author:
+//   Jordan Chan <jordan@assetavenue.com>
 
 var yelp = require("node-yelp");
 

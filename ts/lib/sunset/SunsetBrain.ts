@@ -32,7 +32,7 @@ class SunsetBrain extends ReminderBrain {
   }
 
   getReminderMessage(data: any, formattedTime: string): Promise<string> {
-    return Promise.resolve(sunsetMessages.getSunsetReminderMessage(formattedTime));
+    return Promise.resolve(sunsetMessages.getSunsetReminderMessage(formattedTime, MINUTES_BEFORE_SUNSET));
   }
 }
 
