@@ -61,9 +61,10 @@ it's suggested that you search for a dedicated guide focused on your OS.
 An example script is included at `scripts/example.coffee`, so check it out to
 get started, along with the [Scripting Guide](scripting-docs).
 
-Baat is set up to handle ES6 JavaScript, TypeScript, and CoffeeScript. In any case,
+Baat is set up to handle TypeScript and CoffeeScript. The compiler is set to be easy enough
+that ES6 JavaScript files should work too, as long as they have a `.ts` extension. In either case,
 add your script file to `src`. Running `bin/dev` or `bin/hubot` will compile TypeScript
-files, and copy everything over to `scripts`. Make sure not to put anything in `scripts` yourself,
+files, and copy CoffeeScript over to `scripts`. Make sure not to put anything in `scripts` yourself,
 since it'll be deleted.
 
 For many common tasks, there's a good chance someone has already one to do just
