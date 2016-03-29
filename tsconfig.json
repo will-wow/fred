@@ -7,8 +7,7 @@
     "noImplicitAny": false,
     "rootDir": "src",
     "sourceRoot": "src",
-    "outDir": "scripts",
-    "allowJs": false
+    "outDir": "scripts"
   },
   "exclude": [
     "node_modules",
@@ -16,7 +15,6 @@
     ".vscode",
     "typings/browser",
     "typings/browser.d.ts",
-    "scripts",
     "gulpfile.js"
   ]
 }

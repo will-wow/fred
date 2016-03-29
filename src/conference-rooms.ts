@@ -44,11 +44,7 @@ function getRoomNames(room: string, nameToExclude?: string): string {
     return '';
   }
 
-  if (!nameToExclude) {
-    return room;
-  }
-
-  const filteredNames: string[] = _.reject(names, (name) => name === nameToExclude);
+  const filteredNames = nameToExclude ? _.reject(names, (name) => name === nameToExclude) : names;
 
   return joinRoomNames(filteredNames);
 }
