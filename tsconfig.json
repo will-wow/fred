@@ -5,15 +5,18 @@
     "moduleResolution": "node",
     "sourceMap": true,
     "noImplicitAny": false,
-    "rootDir": "ts",
-    "sourceRoot": "ts",
-    "outDir": "scripts"
+    "rootDir": "src",
+    "sourceRoot": "src",
+    "outDir": "scripts",
+    "allowJs": true
   },
   "exclude": [
     "node_modules",
     "bin",
     ".vscode",
     "typings/browser",
-    "typings/browser.d.ts"
+    "typings/browser.d.ts",
+    "scripts",
+    "gulpfile.js"
   ]
 }
