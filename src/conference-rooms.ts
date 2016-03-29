@@ -15,7 +15,7 @@
 import _ = require('lodash');
 
 interface Rooms {
-    [room: string]: string[]
+  [room: string]: string[]
 };
 
 const ROOMS: Rooms = {
@@ -25,19 +25,19 @@ const ROOMS: Rooms = {
   'one more': ['far south west', 'reception']
 };
 
-function joinRoomNames (names: string[]): string {
+function joinRoomNames(names: string[]): string {
   // If the array has one name, return it. If it has none, return undefined.
   if (names.length <= 1) {
     return names[0];
   }
 
-  const commaSeperatedNames = names.slice(0,names.length - 1);
+  const commaSeperatedNames = names.slice(0, names.length - 1);
   const lastName = _.last(names);
 
   return `${commaSeperatedNames.join(', ')} or ${lastName}`;
 }
 
-function getRoomNames (room: string, nameToExclude?: string): string {
+function getRoomNames(room: string, nameToExclude?: string): string {
   const names = ROOMS[room];
 
   if (!names) {
