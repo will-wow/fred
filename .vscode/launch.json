@@ -2,7 +2,7 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
-      "name": "Attach to Baat",
+      "name": "Attach to Fred",
       "type": "node",
       "request": "attach",
       "port": 5858,
