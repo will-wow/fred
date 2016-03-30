@@ -24,4 +24,10 @@ export = (robot: hubot.Robot) => {
     robot.messageRoom(room, message);
     res.send('Done.')
   });
+
+  robot.hear(/I (love|like|liek)(?: you)? fred/i, (res: hubot.Response) => {
+    const love: string = res.match[1];
+
+    res.reply(`I ${love} you too`);
+  });
 };

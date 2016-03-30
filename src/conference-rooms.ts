@@ -21,7 +21,7 @@ interface Rooms {
 const ROOMS: Rooms = {
   sunset: ['triangle', 'south east'],
   venice: ['workout', 'standup', 'playstation', 'couch', 'south west'],
-  hollywood: ['corner', 'north east'],
+  hollywood: ['rectangle', 'corner', 'north east'],
   mulholland: ['reception', 'other']
 };
 
