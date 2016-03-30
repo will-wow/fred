@@ -47,7 +47,6 @@ module.exports = (robot) => {
 		  var number = Math.floor(feelingLucky(0 , limit));
 		  var result = data.businesses[number].url;
 		  res.send(result);
-
 		});
 	});
 };
