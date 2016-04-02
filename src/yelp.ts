@@ -32,35 +32,33 @@ module.exports = (robot) => {
 		var location = "1110 Glendon Ave. Los Angeles, CA";
 		var results = [];
 
-		function search {
-			client.search({
-			  sort: '2',
-			  offset: '0',
-			  radius_filter: '600',
+		function search (offset) {
+			return client.search({
+				sort: '2',
+				offset: offset,
+				radius_filter: '600',
 				location: location,
-			  limit: limit,
-			  term: randomSearch
-			}).then (function (data) {
-				data.businesses.forEach(function (food) {
-					results.push(food.url);
+				limit: limit,
+				term: randomSearch
 			})
-		})
+		}
 
-			client.search({
-			  sort: '2',
-			  offset: '20',
-			  radius_filter: '600',
-				location: location,
-			  limit: limit,
-			  term: randomSearch
-			}).then (function (data) {
-				data.businesses.forEach(function (food) {
-					results.push(food.url);
+		function makeSearch () {
+			return new Promise (function (resolve, reject) {
+				search(0).then(function (data) {
+					search(20).then (function (secondData) {
+					 var results =	data.businesses.concat(secondData.businesses);
+
+					 var urls = results.map(function (food) {
+						return food.url
+					 })
+					 resolve(urls);
+					})
 				})
-				res.send(feelingLucky(results));
-			})
+			}
+		}
 
-		};
-
-	  search();
-};
+		makeSearch().then(function (all) {
+			res.send(feelingLucky(all));
+		})
+}
