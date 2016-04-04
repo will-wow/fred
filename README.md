@@ -16,13 +16,13 @@ upon have been set.
 
 You can start Fred locally and available for debugging by node-inspector by running:
 
-    % bin/dev
+    bin/dev
 
 Note that there is a launch.json set up for VSCode - run Attach to Fred from the debugger to be able to set breakpoints. 
 
 To start Fred in Windows, try running:
  
-    .bin\hubot
+    .\bin\hubot
 
 You'll see some start up output and a prompt:
 

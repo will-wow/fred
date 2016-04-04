@@ -52,7 +52,7 @@ declare module hubot {
     finish(): void
 
 
-    match(): Function
+    match: string[]
 
     message: ResponseMessage
   }

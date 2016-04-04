@@ -1,3 +1,6 @@
 @echo off
 
-npm install && gulp coffee && node_modules/typescript/bin/tsc & node_modules\.bin\hubot.cmd --name "fred" %*
+npm install && ^
+gulp coffee && ^
+node node_modules\typescript\lib\tsc.js && ^
+node_modules\.bin\hubot.cmd --name "fred" %*

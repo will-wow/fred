@@ -61,7 +61,8 @@ Mulholland: ${getRoomNames('mulholland')}`
   });
 
   robot.respond(/(?:what is|what's)(?: the)? (.+?)(?: room)? called\??$/i, (res: hubot.Response): void => {
-    const name: string = res.match[1];
+    const name: string = _.get(res, 'match.1', '').trim();
+    const lookupName: string = name.toLowerCase();
 
     // No name given.
     if (!name) {
@@ -69,14 +70,14 @@ Mulholland: ${getRoomNames('mulholland')}`
     }
 
     // The name matches one of the rooms directly.
-    if (ROOMS[name]) {
+    if (ROOMS[lookupName]) {
       // Send the room's other names.
-      return res.send(`${name} is also known as ${getRoomNames(name)}.`);
+      return res.send(`${name} is also known as ${getRoomNames(lookupName)}.`);
     }
 
     // Find the room by name.
     const roomName: string = _.findKey(ROOMS, (names: string[], key: string): boolean => {
-      return _.includes(names, name);
+      return _.includes(names, lookupName);
     });
 
     // No room found.
