@@ -30,4 +30,8 @@ export = (robot: hubot.Robot) => {
 
     res.reply(`I ${love} you too`);
   });
+
+  robot.hear(/problem solved/i, (res: hubot.Response) => {
+    res.reply('https://youtu.be/e3mLoFndR6M');
+  });
 };
