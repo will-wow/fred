@@ -6,7 +6,11 @@
 declare module hubot {
 
   interface ResponseMessage {
-    room: string
+    done: boolean;
+    id: string;
+    room: string;
+    text: string;
+    user: User;
   }
 
   interface Response {
@@ -136,6 +140,7 @@ declare module hubot {
     topic(options: Object, callback: ResponseCallback): void
     error(callback: (error: Error) => void): void
     catchAll(options: Object, callback: ResponseCallback): void
+    catchAll(callback: ResponseCallback): void
     listenerMiddleware(middleware: MiddlewareFunction): void,
     responseMiddleware(middleware: MiddlewareFunction): void,
     receiveMiddleware(middleware: MiddlewareFunction): void,
