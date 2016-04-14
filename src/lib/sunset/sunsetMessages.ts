@@ -1,6 +1,7 @@
 'use strict';
 
 import SunsetTime from './SunsetTime';
+import personality from '../personality/currentPersonality';
 
 /**
  * Utils for generating sunset messages.
@@ -9,58 +10,46 @@ import SunsetTime from './SunsetTime';
 
 /**
  * The message for trying to set a reminder when one exists.
- * @param {string} address
- * @param {string} defaultAddress
- * @returns {string}
+ * @param address
+ * @param defaultAddress
  */
 export function getExistingRoomMessage(address: string, defaultAddress: string) {
-  const messageAddress = address === defaultAddress ?
-    '' :
-    `at ${address} test`;
-
-  return `
-    Hm, I'm already tracking sunsets for this room${messageAddress}.
-    Please say "stop reminding us about sunset" if you want me to stop tracking
-    here first.
-  `;
+  const messageAddress = address === defaultAddress ? undefined : address;
+  return personality.current.sunsetExistingRoom(address);
 };
 
 /**
  * The message for a "when is sunset" question.
- * @param {SunsetTime} sunsetTime - a SunsetTime instance.
- * @returns {string}
+ * @param sunsetTime - a SunsetTime instance.
  */
 export function getOneTimeSunsetMessage(sunsetTime: SunsetTime): string {
-  return `${sunsetTime.isTomorrow ? 'Tomorrow' : 'Tonight'}, sunset starts at ${sunsetTime.formattedTime} :sunrise_over_mountains:`;
+  return personality.current.sunsetOneTime(sunsetTime.formattedTime, sunsetTime.isTomorrow);
 };
 
 /**
  * The messsage for a sunset reminder.
  */
 export function getSunsetReminderMessage(formattedTime: string, minutesBeforeSunset: number): string {
-  return `Sunset starts in ${minutesBeforeSunset} minutes, at ${formattedTime} :sunrise_over_mountains:`;
+  return personality.current.sunsetReminder(formattedTime, minutesBeforeSunset);
 };
 
 /**
  * The message for setting a sunset reminder.
- * @returns {string}
  */
-export function getSunsetReminderSetMessage():string {
-  return `Okay, setting sunset reminders!`;
+export function getSunsetReminderSetMessage(): string {
+  return personality.current.sunsetReminderSet();
 };
 
 /**
  * The message for removing a sunset reminder.
- * @returns {string}
  */
-export function getSunsetReminderClearMessage():string {
-  return `Alright, no more sunsets here...`;
+export function getSunsetReminderClearMessage(): string {
+  return personality.current.sunsetReminderCleared();
 };
 
 /**
  * The message for not finding a sunset reminder to remove.
- * @returns {string}
  */
-export function getSunsetReminderClearFailMessage():string {
-  return `That was easy, I wasn't tracking sunsets here anyway!`;
+export function getSunsetReminderClearFailMessage(): string {
+  return personality.current.sunsetReminderClearFailed();
 };

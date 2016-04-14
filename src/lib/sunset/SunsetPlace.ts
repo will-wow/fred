@@ -14,18 +14,18 @@ const geocoder = geocoderModule(geocoderProvider, httpAdapter);
 tzwhere.init();
 
 interface Geo {
-  lat: string
-  lng: string
+  lat: string;
+  lng: string;
 }
 
 /** Represents a place */
 class SunsetPlace {
   public promise: Promise<SunsetPlace>
-  public geo: Geo
-  public timezone: string
+  public geo: Geo;
+  public timezone: string;
 
-  private deferred: Deferred
-  private address: string
+  private deferred: Deferred;
+  private address: string;
   /**
    * @param {string} address
    */

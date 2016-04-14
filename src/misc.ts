@@ -14,6 +14,8 @@
 
 import _ = require('lodash');
 
+import personality from './lib/personality/currentPersonality';
+
 export = (robot: hubot.Robot) => {
   robot.respond(/what room is this?/i, (res: hubot.Response) => {
     res.send(res.message.room);
@@ -43,6 +45,6 @@ export = (robot: hubot.Robot) => {
       return;
     }
 
-    res.send(`Sorry, I don't know what you mean! Try saying "fred help"`);
+    res.send(personality.current.catchAll());
   });
 };

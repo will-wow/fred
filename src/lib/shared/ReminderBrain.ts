@@ -7,16 +7,16 @@ const CronJob = cron.CronJob;
 
 // Interface for the return from getReminderTime.
 export interface ReminderTime {
-  time: moment.Moment
-  data: any
+  time: moment.Moment;
+  data: any;
 }
 
 /** Class representing daily reminders to a room. */
 abstract class ReminderBrain {
-  private robot: hubot.Robot
-  private namespace: string
-  private reminders: Object
-  private todaysReminderJobs: Object
+  private robot: hubot.Robot;
+  private namespace: string;
+  private reminders: Object;
+  private todaysReminderJobs: Object;
 
   /**
    * Set a reminder for a room.
