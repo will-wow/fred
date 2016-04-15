@@ -6,7 +6,7 @@
 // Configuration:
 //
 // Commands:
-//   hubot how do you spell <word> - Gives spelling suggestions.
+//   hubot spell <word> - Gives spelling suggestions.
 //   hubot what does <word> mean? - Gives some definitions.
 //
 // Author:
@@ -16,23 +16,12 @@ import natural = require('natural');
 import _ = require('lodash');
 import fs = require('fs');
 
+import personality from './lib/personality/currentPersonality';
+
 const wordnet = new natural.WordNet();
 let spellcheck: natural.Spellcheck;
 
-function getSpelling(word: string): string {
-  if (spellcheck.isCorrect(word)) {
-    return `Correct!`;
-  }
-
-  const corrections = spellcheck.getCorrections(word, 1);
-
-  if (!corrections.length) {
-    return `I don't know.`;
-  }
-
-  return corrections.join(', ');
-};
-
+// Parse some text for the spellchecker.
 fs.readFile('./src/lib/big.txt', (err, data) => {
   if (err) {
     console.log(err);
@@ -44,9 +33,45 @@ fs.readFile('./src/lib/big.txt', (err, data) => {
   console.log('spellcheck ready!');
 });
 
+/** Look up the spelling of a word, and respond. */
+function getSpelling(word: string): string {
+  if (spellcheck.isCorrect(word)) {
+    return personality.current.wordSpellingCorrect();
+  }
+
+  const corrections = spellcheck.getCorrections(word, 1);
+
+  if (!corrections.length) {
+    return personality.current.wordSpellingNotFound();
+  }
+
+  return corrections.join(', ');
+};
+
+/** Respond to a a definition request. */
+function handleDefinition(res: hubot.Response) {
+  const word = res.match[1].toLowerCase();
+
+  wordnet.lookup(word, (results): void => {
+    // Handle a failed lookup.
+    if (!results.length) {
+      res.send(personality.current.wordDefinitionNotFound());
+      return;
+    }
+
+    // Pick a random result.
+    const result = _.sample(results);
+    // Send the definition.
+    res.send(
+`${result.pos}: ${result.gloss}
+Synonyms: ${result.synonyms}`
+    );
+  });
+}
+
 export = (robot: hubot.Robot) => {
-  robot.respond(/how do (?:you|I) spell (.+)\??$/i, (res: hubot.Response) => {
-    const input = res.match[1];
+  robot.respond(/(?:how do (?:you|I) )?spell (.+)\??$/i, (res: hubot.Response) => {
+    const input = res.match[1].toLowerCase();
     const words = _.words(input);
 
     if (words.length === 1) {
@@ -61,17 +86,7 @@ export = (robot: hubot.Robot) => {
     res.send(response);
   });
 
-  robot.respond(/what does (.+) mean/i, (res: hubot.Response) => {
-    const word = res.match[1];
-
-    wordnet.lookup(word, (results): void => {
-      // Pick a random result.
-      const result = _.sample(results);
-      // Send the definition.
-      res.send(
-`${result.pos}: ${result.gloss}
-Synonyms: ${result.synonyms}`
-      );
-    });
-  });
+  robot.respond(/what does (.+) mean/i, handleDefinition);
+  robot.respond(/define (.+)/i, handleDefinition);
+  robot.respond(/.*definition of (.+)/i, handleDefinition);
 };

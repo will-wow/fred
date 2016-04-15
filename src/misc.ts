@@ -26,13 +26,13 @@ export = (robot: hubot.Robot) => {
     const room: string = res.match[2];
 
     robot.messageRoom(room, message);
-    res.send('Done.');
+    res.send(personality.current.done());
   });
 
   robot.hear(/I (love|like|liek)(?: you)? fred/i, (res: hubot.Response) => {
     const love: string = res.match[1];
 
-    res.reply(`I ${love} you too`);
+    res.reply(personality.current.iLoveYou(love));
   });
 
   robot.hear(/problem solved/i, (res: hubot.Response) => {

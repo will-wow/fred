@@ -14,6 +14,8 @@
 
 import _ = require('lodash');
 
+import personality from './lib/personality/currentPersonality';
+
 interface Rooms {
   [room: string]: string[]
 };
@@ -64,15 +66,10 @@ Mulholland: ${getRoomNames('mulholland')}`
     const name: string = _.get(res, 'match.1', '').trim();
     const lookupName: string = name.toLowerCase();
 
-    // No name given.
-    if (!name) {
-      return res.send(`Sorry, what's that name again?`);
-    }
-
     // The name matches one of the rooms directly.
     if (ROOMS[lookupName]) {
       // Send the room's other names.
-      return res.send(`${name} is also known as ${getRoomNames(lookupName)}.`);
+      return res.send(personality.current.conferenceRoomAka(name, getRoomNames(lookupName)));
     }
 
     // Find the room by name.
@@ -82,10 +79,10 @@ Mulholland: ${getRoomNames('mulholland')}`
 
     // No room found.
     if (!roomName) {
-      return res.send(`Sorry, even I don't know what ${name} is called!`);
+      return res.send(personality.current.conferenceRoomNotFound(roomName));
     }
 
     // Room found. Return its name, and its other aliases.
-    res.send(`That's ${roomName}.`);
+    res.send(personality.current.conferenceRoomRealName(roomName));
   });
 };

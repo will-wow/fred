@@ -10,4 +10,5 @@ fi
 
 node_modules/.bin/gulp coffee
 node_modules/.bin/tsc
-coffee --nodejs --debug node_modules/.bin/hubot --name "fred" "$@"
+# coffee --nodejs --debug node_modules/.bin/hubot --name "fred" "$@"
+exec node_modules/.bin/hubot --name "fred" "$@"
