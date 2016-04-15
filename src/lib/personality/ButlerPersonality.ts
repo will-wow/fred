@@ -17,7 +17,7 @@ class ButlerPersonality implements Personality {
   };
 
   public conferenceRoomAka(roomName: string, otherNames: string): string {
-    return `I believe the peasants refer to ${name} as ${otherNames}.`;
+    return `I believe the peasants refer to ${roomName} as ${otherNames}.`;
   }
   public conferenceRoomNotFound(name: string): string {
     return `Apologies, I don't know of any ${name} room.`;

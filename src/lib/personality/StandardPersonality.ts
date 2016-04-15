@@ -17,7 +17,7 @@ class StandardPersonality implements Personality {
   };
 
   public conferenceRoomAka(roomName: string, otherNames: string): string {
-    return `${name} is also known as ${otherNames}.`
+    return `${roomName} is also known as ${otherNames}.`
   }
   public conferenceRoomNotFound(name: string): string {
     return `Sorry, even I don't know what ${name} is called!`;
@@ -29,11 +29,9 @@ class StandardPersonality implements Personality {
   public wordSpellingCorrect(): string {
     return `Correct!`;
   };
-
   public wordSpellingNotFound(): string {
     return `Sorry, I don't know how to spell that either.`;
   };
-  
   public wordDefinitionNotFound(): string {
     return `Sorry, I'm not sure what that means either.`;
   };
