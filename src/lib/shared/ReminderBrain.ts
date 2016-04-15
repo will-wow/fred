@@ -13,8 +13,6 @@ export interface ReminderTime {
 
 /** Class representing daily reminders to a room. */
 abstract class ReminderBrain {
-  private robot: hubot.Robot;
-  private namespace: string;
   private reminders: Object;
   private todaysReminderJobs: Object;
 
@@ -23,13 +21,12 @@ abstract class ReminderBrain {
    * @param {Object} robot - The hubot robot reference.
    * @param {string} namespace - The namespace for the reminders in the brain.
    */
-  constructor(robot: hubot.Robot, namespace: string) {
-    this.robot = robot;
-    // Get data from the opts object
-    this.namespace = namespace;
-
+  constructor(
+    private robot: hubot.Robot,
+    private namespace: string
+  ) {
     // Get the reminders from storage, once they're loaded.
-    this.robot.brain.on("loaded", this._onBrainLoaded.bind(this));
+    this.robot.brain.on('loaded', this._onBrainLoaded.bind(this));
     // In case they were already loaded before we got here.
     this._onBrainLoaded();
 

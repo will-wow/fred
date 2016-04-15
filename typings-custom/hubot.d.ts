@@ -196,26 +196,26 @@ declare module hubot {
   }
 
   interface Brain extends NodeJS.EventEmitter {
-    data: Object
-    autoSave: boolean
+    data: Object;
+    autoSave: boolean;
 
-    set(key: any, value: any): Brain
-    get(key: any): any
-    remove(key: any): Brain
-    save(): void
-    close(): void
-    setAutoSave(enabled: boolean): void
+    set(key: any, value: any): Brain;
+    get(key: any): any;
+    remove(key: any): Brain;
+    save(): void;
+    close(): void;
+    setAutoSave(enabled: boolean): void;
     /**
      * Merge keys loaded from a DB against the in memory representation.
      * Caveats: Deeply nested structures don't merge well.
      * @param seconds - An Integer of seconds between saves.
      */
-    resetSaveInterval(seconds: number): void
-    mergeData(data: Object): void
-    users(): User[]
-    userForId(id: string, options: Object): User
-    userForName(name: string): User
-    usersForRawFuzzyName(fuzzyName: string): User[]
-    usersForFuzzyName(fuzzyName: string): User[]
+    resetSaveInterval(seconds: number): void;
+    mergeData(data: Object): void;
+    users(): User[];
+    userForId(id: string, options: Object): User;
+    userForName(name: string): User;
+    usersForRawFuzzyName(fuzzyName: string): User[];
+    usersForFuzzyName(fuzzyName: string): User[];
   }
 }
