@@ -6,9 +6,16 @@ interface Personality {
   done(): string;
   iLoveYou(love: string): string;
 
-  conferenceRoomAka(roomName: string, otherNames: string): string ;
+  conferenceRoomAka(roomName: string, otherNames: string): string;
   conferenceRoomNotFound(name: string): string;
   conferenceRoomRealName(roomName): string;
+
+  todoAddSuccess(length: number, user?: string): string;
+  todoAddDuplicate(user?: string): string;
+  todoList(user?: string): string;
+  todoListEmpty(user?: string): string;
+  todoCompleteSuccess(item: string, user?: string): string;
+  todoCompleteNotFound(index: number | string, user?: string): string;
 
   wordSpellingCorrect(): string;
   wordSpellingNotFound(): string;
