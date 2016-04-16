@@ -1,4 +1,5 @@
 import Personality from './Personality';
+import {pluralize, userOrYou, usersOrYour} from './personalityUtils';
 
 class StandardPersonality implements Personality {
   public catchAll(): string {
@@ -25,6 +26,25 @@ class StandardPersonality implements Personality {
   public conferenceRoomRealName(roomName): string {
     return `That's ${roomName}.`;
   }
+
+  public todoAddSuccess(length: number, user?: string): string {
+    return `Okay, ${userOrYou(user)} now has ${length} ${pluralize('thing', length)} to do.`;
+  };
+  public todoAddDuplicate(user?: string): string {
+    return `Actually, that's already on ${usersOrYour(user)}'s todo list!`;
+  };
+  public todoList(user?: string): string {
+    return `Okay, here's what ${userOrYou(user)} has to do:`;
+  };
+  public todoListEmpty(user?: string): string {
+    return `Looks like ${userOrYou(user)} has nothing to do...`;
+  };
+  public todoCompleteSuccess(item: string, user?: string): string {
+    return `Okay, ${userOrYou(user)} has completed ${item}.`;
+  };
+  public todoCompleteNotFound(index: number | string, user?: string): string {
+    return `Sorry, but ${userOrYou(user)} doesn't have that many things to do!`;
+  };
 
   public wordSpellingCorrect(): string {
     return `Correct!`;
