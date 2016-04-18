@@ -8,4 +8,5 @@ export PATH="node_modules/.bin:node_modules/hubot/node_modules/.bin:$PATH"
 node_modules/.bin/typings install
 node_modules/.bin/gulp coffee
 node_modules/.bin/tsc
-exec node_modules/.bin/hubot --name "fred" "$@"
+
+exec node_modules/.bin/coffee --nodejs --harmony_destructuring "node_modules/hubot/bin/hubot" --name "fred" "$@"

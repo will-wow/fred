@@ -1,5 +1,7 @@
+const nlp = require("nlp_compromise");
+
 import Personality from './Personality';
-import {pluralize, userOrYou, usersOrYour} from './personalityUtils';
+import {pluralize, userOrYou, usersOrYour, conjugateVerb} from './personalityUtils';
 
 class ButlerPersonality implements Personality {
   public catchAll(): string {
@@ -28,22 +30,27 @@ class ButlerPersonality implements Personality {
   }
 
   public todoAddSuccess(length: number, user?: string): string {
-    return `Okay, ${userOrYou(user)} now has ${length} ${pluralize('thing', length)} to do.`;
+    return `Very well, ${userOrYou(user)} now ${conjugateVerb(user, 'has')} ${length} ${pluralize('thing', length)} to do.`;
   };
   public todoAddDuplicate(user?: string): string {
-    return `Actually, that's already on ${usersOrYour(user)}'s todo list!`;
+    return `It seems that is already on ${usersOrYour(user)} todo list. An oversight, I'm sure.`;
   };
   public todoList(user?: string): string {
-    return `Okay, here's what ${userOrYou(user)} has to do:`;
+    return `This is what ${userOrYou(user, 'has')} to do:`;
   };
   public todoListEmpty(user?: string): string {
-    return `Looks like ${userOrYou(user)} has nothing to do...`;
+    return `It seems ${userOrYou(user, 'has')} nothing to do. Perhaps some silver needs polishing?`;
   };
   public todoCompleteSuccess(item: string, user?: string): string {
-    return `Okay, ${userOrYou(user)} has completed ${item}.`;
+    return `Very good, ${userOrYou(user, 'has')} completed ${item}. We shall see if it is up to my standards.`;
   };
   public todoCompleteNotFound(index: number | string, user?: string): string {
-    return `Sorry, but ${userOrYou(user)} doesn't have that many things to do!`;
+    const options = {
+      negate: true,
+      contraction: false
+    };
+
+    return `Apologies, but ${userOrYou(user, 'do', options)} have ${index} things to do.`;
   };
 
   public wordSpellingCorrect(): string {

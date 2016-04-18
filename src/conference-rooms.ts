@@ -17,7 +17,7 @@ import _ = require('lodash');
 import personality from './lib/personality/currentPersonality';
 
 interface Rooms {
-  [room: string]: string[]
+  [room: string]: string[];
 };
 
 const ROOMS: Rooms = {
@@ -29,7 +29,7 @@ const ROOMS: Rooms = {
 
 function joinRoomNames(names: string[]): string {
   // If the array has one name, return it. If it has none, return undefined.
-  if (names.length <= 1) {
+  if (names.length === 1) {
     return names[0];
   }
 

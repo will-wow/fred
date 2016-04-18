@@ -21,13 +21,17 @@ import _ = require('lodash');
 import personality from './lib/personality/currentPersonality';
 import Todo, {TodoList} from './lib/Todo';
 
+function undefinedForSelf (res: hubot.Response, user: string): string {
+  return res.message.user.name === user ? undefined : user;
+}
+
 export = (robot: hubot.Robot) => {
   const todo = new Todo(robot);
 
   function addItem(res: hubot.Response, user: string, item: string) {
     todo.add(user, item,
       (length: number) => res.send(personality.current.todoAddSuccess(length, user)),
-      () => res.send(personality.current.todoAddDuplicate(user))
+      () => res.send(personality.current.todoAddDuplicate(undefinedForSelf(res, user)))
     );
   }
 
@@ -37,11 +41,11 @@ export = (robot: hubot.Robot) => {
         // Number the list.
         const numberedList = _.map(list, (item, index) => `${index + 1}: ${item}`);
         // Add a message to the top of the list.
-        const sendList = _.flatten([personality.current.todoList(user), numberedList]);
+        const sendList = _.flatten([personality.current.todoList(undefinedForSelf(res, user)), numberedList]);
 
         res.send(sendList.join('\n'));
       },
-      () => res.send(personality.current.todoListEmpty(user))
+      () => res.send(personality.current.todoListEmpty(undefinedForSelf(res, user)))
     );
   }
 
@@ -49,17 +53,21 @@ export = (robot: hubot.Robot) => {
     const indexNumber = _.toNumber(index);
 
     todo.complete(user, indexNumber,
-      (removedItem: string) => res.send(personality.current.todoCompleteSuccess(removedItem, user)),
-      () => res.send(personality.current.todoCompleteNotFound(index, user))
+      (removedItem: string) => res.send(personality.current.todoCompleteSuccess(removedItem, undefinedForSelf(res, user))),
+      () => res.send(personality.current.todoCompleteNotFound(index, undefinedForSelf(res, user)))
     );
   }
 
   // Add item for user
-  robot.respond(/tell (.+) to (.+)/i, (res: hubot.Response) => {
+  robot.respond(/(?:tell|remind) (.+) to (.+)/i, (res: hubot.Response) => {
     const user = res.match[1];
     const item = res.match[2];
 
-    addItem(res, user, item);
+    const finalUserName: string = _.includes(['me', 'myself'], user.trim()) ?
+      res.message.user.name :
+      user;
+
+    addItem(res, finalUserName, item);
   });
 
   // Add item for self
@@ -85,13 +93,13 @@ export = (robot: hubot.Robot) => {
   });
 
   // Complete item for other user
-  robot.respond(/mark #?([0-9]+) (?:as )?done for (.+)/i, (res: hubot.Response) => {
+  robot.respond(/mark #?([0-9]+) (?:as )?(?:done|complete|completed|finished) for (.+)/i, (res: hubot.Response) => {
     const index = res.match[1];
     const user = res.match[2];
 
     markItemAsComplete(res, index, user);
   });
-  robot.respond(/(?:complete|finish) #?([0-9]+) for (.+)/, (res: hubot.Response) => {
+  robot.respond(/(?:do|complete|finish) #?([0-9]+) for (.+)/, (res: hubot.Response) => {
     const index = res.match[1];
     const user = res.match[2];
 
@@ -99,13 +107,13 @@ export = (robot: hubot.Robot) => {
   });
 
   // Complete Item for self
-  robot.respond(/mark #?([0-9]+) (?:as )?done$/i, (res: hubot.Response) => {
+  robot.respond(/mark #?([0-9]+) (?:as )?(?:done|complete|completed|finished)$/i, (res: hubot.Response) => {
     const index = res.match[1];
     const user = res.message.user.name;
 
     markItemAsComplete(res, index, user);
   });
-  robot.respond(/(?:complete|finish) #?([0-9]+)/, (res: hubot.Response) => {
+  robot.respond(/(?:do|complete|finish) #?([0-9]+)/, (res: hubot.Response) => {
     const index = res.match[1];
     const user = res.message.user.name;
 
