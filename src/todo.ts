@@ -52,7 +52,7 @@ export = (robot: hubot.Robot) => {
   function markItemAsComplete(res: hubot.Response, index: string, user: string) {
     const indexNumber = _.toNumber(index);
 
-    todo.complete(user, indexNumber,
+    todo.complete(user, indexNumber - 1,
       (removedItem: string) => res.send(personality.current.todoCompleteSuccess(removedItem, undefinedForSelf(res, user))),
       () => res.send(personality.current.todoCompleteNotFound(index, undefinedForSelf(res, user)))
     );
