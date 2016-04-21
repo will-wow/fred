@@ -8,6 +8,12 @@ export type TodoList = string[];
 
 const TODO = 'todo';
 
+
+/** Convert usernames from slack usernames, if they aren't already */
+function toBaseUsername (user: string): string {
+  return user[0] === '@' ? user : '@' + user;
+}
+
 class Todo {
   private brain: hubot.Brain;
 
@@ -79,13 +85,14 @@ class Todo {
     }
 
     const todos: TodoData = this.brain.data[TODO];
+    const slackUser = toBaseUsername(user);
 
     // Set up user list if that doesn't exist.
-    if (!todos[user]) {
-      todos[user] = [];
+    if (!todos[slackUser]) {
+      todos[slackUser] = [];
     }
 
-    return todos[user];
+    return todos[slackUser];
   }
 }
 
