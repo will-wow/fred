@@ -47,4 +47,19 @@ export = (robot: hubot.Robot) => {
 
     res.send(personality.current.catchAll());
   });
+
+  robot.respond(/what.s my name/, (res: hubot.Response) => {
+    res.send(res.message.user.name);
+  });
+
+  robot.respond(/what.s (.+).s name/, (res: hubot.Response) => {
+    res.send(res.match[1]);
+  });
+
+  robot.respond(/what names do you know?/, (res: hubot.Response) => {
+    const users = robot.brain.users();
+    const names = _.map(users, 'name');
+
+    res.send(names.join(', '));
+  });
 };

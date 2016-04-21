@@ -60,7 +60,7 @@ export = (robot: hubot.Robot) => {
 
   // Add item for user
   robot.respond(/(?:tell|remind) (.+) to (.+)/i, (res: hubot.Response) => {
-    const user = res.match[1];
+    const user = res.match[1].trim();
     const item = res.match[2];
 
     const finalUserName: string = _.includes(['me', 'myself'], user.trim()) ?
@@ -87,21 +87,21 @@ export = (robot: hubot.Robot) => {
 
   // List items for self
   robot.respond(/what does (.+) have to ?do/i, (res: hubot.Response) => {
-    const user = res.match[1];
+    const user = res.match[1].trim();
 
     listItems(res, user);
   });
 
   // Complete item for other user
   robot.respond(/mark #?([0-9]+) (?:as )?(?:done|complete|completed|finished) for (.+)/i, (res: hubot.Response) => {
-    const index = res.match[1];
+    const index = res.match[1].trim();
     const user = res.match[2];
 
     markItemAsComplete(res, index, user);
   });
   robot.respond(/(?:do|complete|finish) #?([0-9]+) for (.+)/, (res: hubot.Response) => {
     const index = res.match[1];
-    const user = res.match[2];
+    const user = res.match[2].trim();
 
     markItemAsComplete(res, index, user);
   });

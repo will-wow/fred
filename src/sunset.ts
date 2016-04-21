@@ -24,7 +24,8 @@ export = (robot: hubot.Robot) => {
   // Initialize the SunsetBrain for data access.
   const sunsetBrain = new SunsetBrain(robot, 'sunsetRoomReminders');
 
-  robot.respond(/when is sunset(?: at (.*))?\??$/i, (res: hubot.Response) => {
+  robot.respond(/when is sunset(?: at (.*))?/i, (res: hubot.Response) => {
+    console.log('when is sunset');
     const address = res.match[1] || DEFAULT_ADDRESS;
     const sunsetPlace = new SunsetPlace(address);
 
@@ -34,7 +35,7 @@ export = (robot: hubot.Robot) => {
     .catch((error) => res.send(error));
   });
 
-  robot.respond(/remind (?:us|me) about sunset(?: at (.*))?$/i, (res: hubot.Response) => {
+  robot.respond(/remind (?:us|me) about sunset(?: at (.*))?/i, (res: hubot.Response) => {
     const room: string = res.message.room;
     const address: string = res.match[1] || DEFAULT_ADDRESS;
 
