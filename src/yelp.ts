@@ -5,7 +5,8 @@
 //   hubot yelp me * - Replies with a random yelp link to anything you search for.
 //
 // Configuration:
-//
+//   Currently Yelp only allows a max of 40 results.
+
 // Author:
 //   Jordan Chan <jordan@assetavenue.com>
 
