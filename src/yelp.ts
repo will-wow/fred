@@ -2,20 +2,18 @@
 //   Decides on lunch.
 //
 // Commands:
-//   hubot yelp me baby - Replies with the yelp link to a local restaurant.
+//   hubot yelp me * - Replies with a random yelp link to anything you search for.
 //
 // Configuration:
-//
+//   Currently Yelp only allows a max of 40 results.
+
 // Author:
 //   Jordan Chan <jordan@assetavenue.com>
 
 var yelp = require('node-yelp');
 var _ = require('lodash');
-module.exports = (robot) => {
 
-  function feelingLucky(array) {
-    return _.sample(array);
-  }
+module.exports = (robot) => {
 
   var client = yelp.createClient({
     oauth: {
@@ -26,11 +24,10 @@ module.exports = (robot) => {
     },
   });
 
-  robot.respond(/yelp me baby/i, (res) => {
-    var randomSearch = 'lunch';
+  robot.respond(/yelp me (.*)/i, (res) => {
+    var query= res.match[1];
     var limit = '20';
     var location = "1110 Glendon Ave. Los Angeles, CA";
-    var results = [];
 
     function search(offset) {
       return client.search({
@@ -39,27 +36,47 @@ module.exports = (robot) => {
         radius_filter: '600',
         location: location,
         limit: limit,
-        term: randomSearch
+        term: query
       });
-    }
+    };
+
+    function feelingLucky(array) {
+      return _.sample(array);
+    };
+
+    var pageOne = function () {
+        return search(0).then(function (response) {
+          return response.businesses
+        });
+    };
+
+    var pageTwo = function () {
+      return search(20).then(function (response) {
+        return response.businesses
+      });
+    };
 
     function makeSearch() {
-      return new Promise(function(resolve, reject) {
-        search(0).then(function(data) {
-          search(20).then(function(secondData) {
-            var results = data.businesses.concat(secondData.businesses);
+      console.log('searching');
+      Promise.all([pageOne(), pageTwo()])
+        .then(function (results) {
+          var firstPage = results[0];
+          var secondPage = results[1];
+          var allResults = firstPage.concat(secondPage);
 
-            var urls = results.map(function(food) {
-              return food.url;
-            });
-            resolve(urls);
+          var urls = allResults.map(function(food) {
+            return food.url;
           });
-        });
-      });
-    }
 
-    makeSearch().then(function(all) {
-      res.send(feelingLucky(all));
-    });
+          res.send(feelingLucky(urls))
+
+        })
+        .catch(function (error) {
+          console.log(error);
+        })
+    };
+
+    makeSearch();
+
   });
 };
