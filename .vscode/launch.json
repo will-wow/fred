@@ -6,8 +6,10 @@
       "type": "node",
       "request": "attach",
       "port": 5858,
+      "address": "127.0.0.1",
       "sourceMaps": true,
-      "outDir": "${workspaceRoot}/scripts"
+      "outDir": "${workspaceRoot}/scripts",
+      "localRoot": "${workspaceRoot}/src"
     }
 	]
 }

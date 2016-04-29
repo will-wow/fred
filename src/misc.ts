@@ -13,6 +13,7 @@
 //   Will Lee-Wagner <will@assetavenue.com>
 
 import _ = require('lodash');
+const speak = require('speakeasy-nlp');
 
 import personality from './lib/personality/currentPersonality';
 
@@ -39,27 +40,50 @@ export = (robot: hubot.Robot) => {
     res.reply('https://youtu.be/e3mLoFndR6M');
   });
 
+  robot.respond(/what.s my name/i, (res: hubot.Response) => {
+    res.send(res.message.user.name);
+  });
+
+  robot.respond(/what.s (.+).s name/i, (res: hubot.Response) => {
+    res.send(res.match[1]);
+  });
+
+  robot.respond(/what names do you know?/i, (res: hubot.Response) => {
+    const users = robot.brain.users();
+    const names = _.map(users, 'name');
+
+    res.send(names.join(', '));
+  });
+
+  robot.respond(/what do you think (?:about|of) (.+)/i, (res: hubot.Response) => {
+    const message = res.match[1];
+
+    const sentimentScore: number = speak.sentiment.analyze(message).score;
+
+    if (sentimentScore === 0) {
+      res.send('Meh.');
+    } else if (sentimentScore < 0) {
+      res.send('How rude!');
+    } else {
+      res.send('How nice!');
+    }
+  });
+
   robot.catchAll((res) => {
     // Only respond to direct messages.
     if (_.words(res.message.text)[0] !== robot.name) {
       return;
     }
 
-    res.send(personality.current.catchAll());
-  });
+    // Calculate the sentiment of the statement. Negative numbers are negative sentiment.
+    const sentimentScore: number = speak.sentiment.analyze(res.message.text).score;
 
-  robot.respond(/what.s my name/, (res: hubot.Response) => {
-    res.send(res.message.user.name);
-  });
-
-  robot.respond(/what.s (.+).s name/, (res: hubot.Response) => {
-    res.send(res.match[1]);
-  });
-
-  robot.respond(/what names do you know?/, (res: hubot.Response) => {
-    const users = robot.brain.users();
-    const names = _.map(users, 'name');
-
-    res.send(names.join(', '));
+    if (sentimentScore === 0) {
+      res.send(personality.current.catchAll());
+    } else if (sentimentScore < 0) {
+      res.send('How rude!');
+    } else {
+      res.send('How nice!');
+    }
   });
 };
