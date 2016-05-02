@@ -31,7 +31,7 @@ export = (robot: hubot.Robot) => {
 
     sunsetPlace.promise
     .then((place) => new SunsetTime(place).promise)
-    .then((sunsetTime) => res.send(sunsetMessages.getOneTimeSunsetMessage(sunsetTime)))
+    .then((sunsetTime) => res.send(sunsetMessages.getOneTimeSunsetMessage(res.message.room, sunsetTime)))
     .catch((error) => res.send(error));
   });
 
@@ -41,22 +41,22 @@ export = (robot: hubot.Robot) => {
 
     // Handle an existing room reminder.
     if (sunsetBrain.roomHasReminder(room)) {
-      res.send(sunsetMessages.getExistingRoomMessage(address, DEFAULT_ADDRESS));
+      res.send(sunsetMessages.getExistingRoomMessage(res.message.room, address, DEFAULT_ADDRESS));
       return;
     }
     sunsetBrain.setRoomReminder(room, address);
-    res.send(sunsetMessages.getSunsetReminderSetMessage());
+    res.send(sunsetMessages.getSunsetReminderSetMessage(res.message.room));
   });
 
   robot.respond(/stop reminding (?:us|me) about sunset/i, (res: hubot.Response) => {
     const room = res.message.room;
 
     if (!sunsetBrain.roomHasReminder(room)) {
-      res.send(sunsetMessages.getSunsetReminderClearFailMessage());
+      res.send(sunsetMessages.getSunsetReminderClearFailMessage(res.message.room));
       return;
     }
 
     sunsetBrain.clearRoomReminder(room);
-    res.send(sunsetMessages.getSunsetReminderClearMessage());
+    res.send(sunsetMessages.getSunsetReminderClearMessage(res.message.room));
   });
 };

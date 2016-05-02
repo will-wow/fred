@@ -27,13 +27,13 @@ export = (robot: hubot.Robot) => {
     const room: string = res.match[2];
 
     robot.messageRoom(room, message);
-    res.send(personality.current.done());
+    res.send(personality.getCurrent(res.message.room).done());
   });
 
   robot.hear(/I (love|like|liek)(?: you)? fred/i, (res: hubot.Response) => {
     const love: string = res.match[1];
 
-    res.reply(personality.current.iLoveYou(love));
+    res.reply(personality.getCurrent(res.message.room).iLoveYou(love));
   });
 
   robot.hear(/problem solved/i, (res: hubot.Response) => {
@@ -79,7 +79,7 @@ export = (robot: hubot.Robot) => {
     const sentimentScore: number = speak.sentiment.analyze(res.message.text).score;
 
     if (sentimentScore === 0) {
-      res.send(personality.current.catchAll());
+      res.send(personality.getCurrent(res.message.room).catchAll());
     } else if (sentimentScore < 0) {
       res.send('How rude!');
     } else {

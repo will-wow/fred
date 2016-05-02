@@ -69,7 +69,7 @@ Mulholland: ${getRoomNames('mulholland')}`
     // The name matches one of the rooms directly.
     if (ROOMS[lookupName]) {
       // Send the room's other names.
-      return res.send(personality.current.conferenceRoomAka(name, getRoomNames(lookupName)));
+      return res.send(personality.getCurrent(res.message.room).conferenceRoomAka(name, getRoomNames(lookupName)));
     }
 
     // Find the room by name.
@@ -79,10 +79,10 @@ Mulholland: ${getRoomNames('mulholland')}`
 
     // No room found.
     if (!roomName) {
-      return res.send(personality.current.conferenceRoomNotFound(roomName));
+      return res.send(personality.getCurrent(res.message.room).conferenceRoomNotFound(roomName));
     }
 
     // Room found. Return its name, and its other aliases.
-    res.send(personality.current.conferenceRoomRealName(roomName));
+    res.send(personality.getCurrent(res.message.room).conferenceRoomRealName(roomName));
   });
 };

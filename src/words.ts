@@ -34,15 +34,15 @@ fs.readFile('./src/lib/big.txt', (err, data) => {
 });
 
 /** Look up the spelling of a word, and respond. */
-function getSpelling(word: string): string {
+function getSpelling(res: hubot.Response, word: string): string {
   if (spellcheck.isCorrect(word)) {
-    return personality.current.wordSpellingCorrect();
+    return personality.getCurrent(res.message.room).wordSpellingCorrect();
   }
 
   const corrections = spellcheck.getCorrections(word, 1);
 
   if (!corrections.length) {
-    return personality.current.wordSpellingNotFound();
+    return personality.getCurrent(res.message.room).wordSpellingNotFound();
   }
 
   return corrections.join(', ');
@@ -55,7 +55,7 @@ function handleDefinition(res: hubot.Response) {
   wordnet.lookup(word, (results): void => {
     // Handle a failed lookup.
     if (!results.length) {
-      res.send(personality.current.wordDefinitionNotFound());
+      res.send(personality.getCurrent(res.message.room).wordDefinitionNotFound());
       return;
     }
 
@@ -75,12 +75,12 @@ export = (robot: hubot.Robot) => {
     const words = _.words(input);
 
     if (words.length === 1) {
-      res.send(getSpelling(words[0]));
+      res.send(getSpelling(res, words[0]));
       return;
     }
 
     const response: string = _.map(words, function (word) {
-      return `${word}: ${getSpelling(word)}`;
+      return `${word}: ${getSpelling(res, word)}`;
     }).join('\n');
 
     res.send(response);

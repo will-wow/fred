@@ -30,8 +30,8 @@ export = (robot: hubot.Robot) => {
 
   function addItem(res: hubot.Response, user: string, item: string) {
     todo.add(user, item,
-      (length: number) => res.send(personality.current.todoAddSuccess(length, user)),
-      () => res.send(personality.current.todoAddDuplicate(undefinedForSelf(res, user)))
+      (length: number) => res.send(personality.getCurrent(res.message.room).todoAddSuccess(length, user)),
+      () => res.send(personality.getCurrent(res.message.room).todoAddDuplicate(undefinedForSelf(res, user)))
     );
   }
 
@@ -41,11 +41,11 @@ export = (robot: hubot.Robot) => {
         // Number the list.
         const numberedList = _.map(list, (item, index) => `${index + 1}: ${item}`);
         // Add a message to the top of the list.
-        const sendList = _.flatten([personality.current.todoList(undefinedForSelf(res, user)), numberedList]);
+        const sendList = _.flatten([personality.getCurrent(res.message.room).todoList(undefinedForSelf(res, user)), numberedList]);
 
         res.send(sendList.join('\n'));
       },
-      () => res.send(personality.current.todoListEmpty(undefinedForSelf(res, user)))
+      () => res.send(personality.getCurrent(res.message.room).todoListEmpty(undefinedForSelf(res, user)))
     );
   }
 
@@ -53,8 +53,8 @@ export = (robot: hubot.Robot) => {
     const indexNumber = _.toNumber(index);
 
     todo.complete(user, indexNumber - 1,
-      (removedItem: string) => res.send(personality.current.todoCompleteSuccess(removedItem, undefinedForSelf(res, user))),
-      () => res.send(personality.current.todoCompleteNotFound(index, undefinedForSelf(res, user)))
+      (removedItem: string) => res.send(personality.getCurrent(res.message.room).todoCompleteSuccess(removedItem, undefinedForSelf(res, user))),
+      () => res.send(personality.getCurrent(res.message.room).todoCompleteNotFound(index, undefinedForSelf(res, user)))
     );
   }
 

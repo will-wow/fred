@@ -13,43 +13,43 @@ import personality from '../personality/currentPersonality';
  * @param address
  * @param defaultAddress
  */
-export function getExistingRoomMessage(address: string, defaultAddress: string) {
+export function getExistingRoomMessage(room, address: string, defaultAddress: string) {
   const messageAddress = address === defaultAddress ? undefined : address;
-  return personality.current.sunsetExistingRoom(address);
+  return personality.getCurrent(room).sunsetExistingRoom(address);
 };
 
 /**
  * The message for a "when is sunset" question.
  * @param sunsetTime - a SunsetTime instance.
  */
-export function getOneTimeSunsetMessage(sunsetTime: SunsetTime): string {
-  return personality.current.sunsetOneTime(sunsetTime.formattedTime, sunsetTime.isTomorrow);
+export function getOneTimeSunsetMessage(room, sunsetTime: SunsetTime): string {
+  return personality.getCurrent(room).sunsetOneTime(sunsetTime.formattedTime, sunsetTime.isTomorrow);
 };
 
 /**
  * The messsage for a sunset reminder.
  */
-export function getSunsetReminderMessage(formattedTime: string, minutesBeforeSunset: number): string {
-  return personality.current.sunsetReminder(formattedTime, minutesBeforeSunset);
+export function getSunsetReminderMessage(room, formattedTime: string, minutesBeforeSunset: number): string {
+  return personality.getCurrent(room).sunsetReminder(formattedTime, minutesBeforeSunset);
 };
 
 /**
  * The message for setting a sunset reminder.
  */
-export function getSunsetReminderSetMessage(): string {
-  return personality.current.sunsetReminderSet();
+export function getSunsetReminderSetMessage(room): string {
+  return personality.getCurrent(room).sunsetReminderSet();
 };
 
 /**
  * The message for removing a sunset reminder.
  */
-export function getSunsetReminderClearMessage(): string {
-  return personality.current.sunsetReminderCleared();
+export function getSunsetReminderClearMessage(room): string {
+  return personality.getCurrent(room).sunsetReminderCleared();
 };
 
 /**
  * The message for not finding a sunset reminder to remove.
  */
-export function getSunsetReminderClearFailMessage(): string {
-  return personality.current.sunsetReminderClearFailed();
+export function getSunsetReminderClearFailMessage(room): string {
+  return personality.getCurrent(room).sunsetReminderClearFailed();
 };

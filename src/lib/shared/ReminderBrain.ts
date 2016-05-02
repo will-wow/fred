@@ -62,7 +62,7 @@ abstract class ReminderBrain {
   /**
    * Gets the message for a reminder. Called at reminder time.
    */
-  abstract getReminderMessage(data: any, timeData: any): Promise<string>
+  abstract getReminderMessage(room: string, data: any, timeData: any): Promise<string>
 
   /**
    * Check if a room already has a reminder.
@@ -167,7 +167,7 @@ abstract class ReminderBrain {
         cronTime: timeData.time.toDate(),
         onTick: () => {
           // Get the message.
-          this.getReminderMessage(data, timeData.data)
+          this.getReminderMessage(room, data, timeData.data)
           .then((message) => {
             // Message the room.
             this.robot.messageRoom(room, message);
