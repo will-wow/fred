@@ -33,6 +33,8 @@ export = (robot: hubot.Robot) => {
   robot.hear(/I (love|like|liek)(?: you)? fred/i, (res: hubot.Response) => {
     const love: string = res.match[1];
 
+    personality.addPositive(res.message.room);
+
     res.reply(personality.getCurrent(res.message.room).iLoveYou(love));
   });
 
@@ -81,9 +83,9 @@ export = (robot: hubot.Robot) => {
     if (sentimentScore === 0) {
       res.send(personality.getCurrent(res.message.room).catchAll());
     } else if (sentimentScore < 0) {
-      res.send('How rude!');
+      res.send(personality.addNegative(res.message.room));
     } else {
-      res.send('How nice!');
+      res.send(personality.addPositive(res.message.room));
     }
   });
 };

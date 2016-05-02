@@ -1,5 +1,9 @@
+export type PersonalityClass = {new (): Personality};
+
 interface Personality {
   personalityChanged(): string;
+  negativeResponse(): string;
+  positiveResponse(): string;
 
   catchAll(): string;
 

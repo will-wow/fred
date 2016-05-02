@@ -1,3 +1,4 @@
+import _ = require('lodash');
 const nlp = require("nlp_compromise");
 
 import Personality from './Personality';
@@ -6,6 +7,16 @@ import {pluralize, userOrYou, usersOrYour, conjugateVerb} from './personalityUti
 class ButlerPersonality implements Personality {
   public catchAll(): string {
     return `Terribly sorry, but I don't understand that. Perhaps try saying "fred help"`;
+  }
+  public negativeResponse(): string {
+    return _.sample([
+      `Your mother was a hamster, and your father smelt of elderberries!`
+    ]);
+  }
+  public positiveResponse(): string {
+    return _.sample([
+      `Much appreciated.`
+    ]);
   }
 
   public personalityChanged(): string {

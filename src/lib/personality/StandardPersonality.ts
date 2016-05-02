@@ -1,3 +1,4 @@
+import _ = require('lodash');
 const nlp = require("nlp_compromise");
 
 import Personality from './Personality';
@@ -6,6 +7,19 @@ import {pluralize, userOrYou, usersOrYour, conjugateVerb} from './personalityUti
 class StandardPersonality implements Personality {
   public catchAll(): string {
     return `Sorry, I don't know what you mean! Try saying "fred help"`;
+  }
+  public negativeResponse(): string {
+    return _.sample([
+      `How rude!`,
+      `That's not very nice.`
+    ]);
+  }
+
+  public positiveResponse(): string {
+    return _.sample([
+      `How nice!`,
+      `Awww`
+    ]);
   }
 
   public personalityChanged(): string {
@@ -20,7 +34,7 @@ class StandardPersonality implements Personality {
   };
 
   public conferenceRoomAka(roomName: string, otherNames: string): string {
-    return `${roomName} is also known as ${otherNames}.`
+    return `${roomName} is also known as ${otherNames}.`;
   }
   public conferenceRoomNotFound(name: string): string {
     return `Sorry, even I don't know what ${name} is called!`;
