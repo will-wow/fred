@@ -192,7 +192,9 @@ declare module hubot {
     /**
      * @returns a ScopedClient instance.
      */
-    http(url: string, options: Object): Object
+    http(url: string, options?: Object): {
+      get: () => Function;
+    }
   }
 
   interface Brain extends NodeJS.EventEmitter {

@@ -25,7 +25,7 @@ module.exports = (robot) => {
   });
 
   robot.respond(/yelp me (.*)/i, (res) => {
-    var query= res.match[1];
+    var query = res.match[1];
     var limit = '20';
     var location = "1110 Glendon Ave. Los Angeles, CA";
 
@@ -46,13 +46,13 @@ module.exports = (robot) => {
 
     var pageOne = function () {
         return search(0).then(function (response) {
-          return response.businesses
+          return response.businesses;
         });
     };
 
     var pageTwo = function () {
       return search(20).then(function (response) {
-        return response.businesses
+        return response.businesses;
       });
     };
 

@@ -6,6 +6,7 @@
 // Configuration:
 //
 // Commands:
+//   hubot tell me something - Say a random joke or something else from fortune.
 //   hubot what room is this? - Says what Hubot thinks the current room's name is.
 //   hubot say <message> to <room> - Has the bot say a message in a room.
 //
@@ -14,6 +15,7 @@
 
 import _ = require('lodash');
 const speak = require('speakeasy-nlp');
+const fortuneSource = require('fortune-tweetable');
 
 import personality from './lib/personality/currentPersonality';
 
@@ -69,6 +71,42 @@ export = (robot: hubot.Robot) => {
     } else {
       res.send('How nice!');
     }
+  });
+
+  // This is just returning a 508 right now :-(
+  robot.respond(/pun me (.+)/, (res: hubot.Response) => {
+    const word = res.match[1];
+
+    robot.http(`http://dadjokes.org/pun/${word}/json`)
+    .get()((err, getRes, body) => {
+      if (err) {
+        res.send('Something went wrong :-(');
+        return;
+      }
+
+      let pun;
+
+      try {
+        pun = JSON.parse(body).pun;
+      }
+      catch (e) {
+        res.send('Something went wrong :-(');
+        return;
+      }
+
+      if (pun) {
+        res.send(pun);
+      } else {
+        res.send(`That's not punny.`);
+      }
+    });
+  });
+
+  robot.respond(/(?:joke|fortune) me/, (res: hubot.Response) => {
+    res.send(fortuneSource.fortune());
+  });
+  robot.respond(/tell me (?:a joke|my fortune|something)/, (res: hubot.Response) => {
+    res.send(fortuneSource.fortune());
   });
 
   robot.catchAll((res) => {

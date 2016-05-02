@@ -5,10 +5,7 @@ import moment = require('moment-timezone');
 var SunCalc = require('suncalc');
 
 import Deferred from '../Deferred';
-import SunsetPlace from './SunsetPlace'
-
-const SUNSET_BASE_URL = 'http://api.sunrise-sunset.org';
-const SUNSET_PATH = 'json';
+import SunsetPlace from './SunsetPlace';
 
 function isValidDate(date: Date) {
   return isFinite(date.valueOf());

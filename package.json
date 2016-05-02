@@ -14,6 +14,7 @@
   "dependencies": {
     "cron": "^1.1.0",
     "dotenv": "^2.0.0",
+    "fortune-tweetable": "^0.2.1",
     "hubot": "^2.18.0",
     "hubot-google-images": "^0.2.6",
     "hubot-google-translate": "^0.2.0",
