@@ -5,6 +5,9 @@ import GrumpyPersonality from './GrumpyPersonality';
 import StandardPersonality from './StandardPersonality';
 import ButlerPersonality from './ButlerPersonality';
 
+/** The number of comments it takes to switch fred's mood. */
+const MOODY_NUMBER = 3;
+
 /** List of available personalities. */
 const personalities: PersonalityClass[] = [
   StandardPersonality,
@@ -90,14 +93,14 @@ class RoomMood {
   private updateGrumpyStatus(): boolean {
     const grumpyNumber: number = this.positiveCount - this.negativeCount;
 
-    if (!this.isGrumpy && grumpyNumber <= -10) {
+    if (!this.isGrumpy && grumpyNumber <= (0 - MOODY_NUMBER)) {
       // Become grumpy.
       this.isGrumpy = true;
       this.positiveCount = 0;
       this.negativeCount = 0;
       this.setCurrent(GrumpyPersonality);
       return true;
-    } else if (this.isGrumpy && grumpyNumber >= 10) {
+    } else if (this.isGrumpy && grumpyNumber >= MOODY_NUMBER) {
       // Stop being grumpy.
       this.isGrumpy = false;
       this.positiveCount = 0;
