@@ -20,4 +20,8 @@ export = (robot: hubot.Robot) => {
 
     res.send(personality.current.personalityChanged());
   });
+
+  robot.respond(/how are you ?(?:feeling|doing)?/i, (res: hubot.Response) => {
+    res.send(personality.current.personalityChanged());
+  });
 };
