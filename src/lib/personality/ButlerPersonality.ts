@@ -6,16 +6,27 @@ import {pluralize, userOrYou, usersOrYour, conjugateVerb} from './personalityUti
 
 class ButlerPersonality implements Personality {
   public catchAll(): string {
-    return `Terribly sorry, but I don't understand that. Perhaps try saying "fred help"`;
+    return _.sample([
+      `Terribly sorry, but I don't understand that. Perhaps try saying "fred help"`,
+      `I'm not sure what you want. Try saying "fred help"`
+    ]);
   }
   public negativeResponse(): string {
     return _.sample([
+      `Well I never!`,
+      `Quite rude.`,
+      `That is indecent.`,
+      `This is improper.`,
+      `Shocking.`,
       `Your mother was a hamster, and your father smelt of elderberries!`
     ]);
   }
   public positiveResponse(): string {
     return _.sample([
-      `Much appreciated.`
+      `Much appreciated.`,
+      `Very good.`,
+      `Quite right.`,
+      `Yes, well, good.`
     ]);
   }
 
