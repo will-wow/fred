@@ -133,7 +133,7 @@ declare module hubot {
      * @param regex - A RegExp for the message part that follows the robot's name/alias
      * @returns RegExp
      */
-    respondPattern(regex: RegExp): RegExp
+    respondPattern(regex: RegExp | string): RegExp
 
     enter(options: Object, callback: ResponseCallback): void
     leave(options: Object, callback: ResponseCallback): void

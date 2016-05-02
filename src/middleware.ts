@@ -14,19 +14,40 @@ import _ = require('lodash');
 
 import personality from './lib/personality/currentPersonality';
 
+function messageIsCommand(robot: hubot.Robot, message: hubot.ResponseMessage): boolean {
+  const text = message.text || <string>_.get(message, 'TextMessage.text');
+
+  if (text === undefined) {
+    return false;
+  }
+
+  return Boolean(text.match(robot.respondPattern('')));
+}
+
 export = (robot: hubot.Robot) => {
   // Let the bot ignore messages when grumpy.
   robot.receiveMiddleware((context, next, done) => {
     const res: hubot.Response = context.response;
 
+    // If the command should be ignored, get the ignore message.
     const ignoredMessage = personality.checkForIgnoredCommand(res.message.room);
-    if (ignoredMessage) {
-      res.send(ignoredMessage);
-      done();
+
+    // If there's no message, carry on.
+    if (!ignoredMessage) {
+      next();
       return;
     }
 
-    next();
+    // If the message was a command to fred:
+    if (messageIsCommand(robot, res.message)) {
+      // Respond with the ignore message.
+      res.send(ignoredMessage);
+    }
+
+    // Don't process this command any further, so multiple listeners don't fire.
+    context.response.message.finish();
+    // No more middleware.
+    done();
   });
 
   // Replace smart quotes with dumb ones, so hubot can match them.
