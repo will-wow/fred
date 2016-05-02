@@ -11,6 +11,8 @@ const personalities: PersonalityClass[] = [
   ButlerPersonality
 ];
 
+const grumpyPersonality = new GrumpyPersonality();
+
 class RoomMood {
   /** The rooms's current personaility. */
   public current: Personality;
@@ -63,6 +65,18 @@ class RoomMood {
       this.current.positiveResponse(),
       this.updateGrumpyStatus()
     );
+  }
+
+  /**
+   * Will randomly return an ignored message. If not undefined,
+   * ignore the command and respond with the message instead.
+   */
+  public checkForIgnoredCommand(): string {
+    const willIgnore = this.isGrumpy && _.random(1, 10) === 10;
+
+    if (willIgnore) {
+      return grumpyPersonality.ignored();
+    }
   }
 
   private getSentimentMessage(message: string, grumpyStatusChanged: boolean): string {

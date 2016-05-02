@@ -36,14 +36,23 @@ class CurrentPersonality {
 
   /** Add a negative point to the room's personaility. */
   public addNegative(room: string): string {
-    const current = this.getCurrentRoomMood(room);
-    return current.addNegative();
+    const roomMood = this.getCurrentRoomMood(room);
+    return roomMood.addNegative();
   }
 
   /** Add a positive point to the room's personaility. */
   public addPositive(room: string): string {
-    const current = this.getCurrentRoomMood(room);
-    return current.addPositive();
+    const roomMood = this.getCurrentRoomMood(room);
+    return roomMood.addPositive();
+  }
+
+  /**
+   * Will randomly return an ignored message. If not undefined,
+   * ignore the command and respond with the message instead.
+   */
+  public checkForIgnoredCommand(room: string): string {
+    const roomMood = this.getCurrentRoomMood(room);
+    return roomMood.checkForIgnoredCommand();
   }
 
   /** Return the Mood for the room. */

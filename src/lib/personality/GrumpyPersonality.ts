@@ -5,6 +5,17 @@ import Personality from './Personality';
 import {pluralize, userOrYou, usersOrYour, conjugateVerb} from './personalityUtils';
 
 class GrumpyPersonality implements Personality {
+  /** Returns a message for an ignored command. */
+  public ignored(): string {
+    return _.sample([
+      `Yeah, good luck with that.`,
+      `Sorry, what?`,
+      `I'm busy.`,
+      `Just ticket it.`,
+      `Yeah, I'll get right on that...`
+    ]);
+  }
+
   public catchAll(): string {
     return `I don't know what you want, and I don't care.`;
   }
@@ -113,6 +124,10 @@ class GrumpyPersonality implements Personality {
   public sunsetReminderClearFailed(): string {
     return `Oh don't worry, I wan't going to tell you about sunsets anyway.`;
   };
+
+  private botWillRespond(): boolean {
+    return _.random(1, 10) <= 9;
+  }
 };
 
 export default GrumpyPersonality;
