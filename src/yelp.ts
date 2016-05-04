@@ -57,7 +57,6 @@ module.exports = (robot) => {
     };
 
     function makeSearch() {
-      console.log('searching');
       Promise.all([pageOne(), pageTwo()])
         .then(function (results) {
           var firstPage = results[0];
@@ -73,7 +72,7 @@ module.exports = (robot) => {
         })
         .catch(function (error) {
           console.log(error);
-        })
+        });
     };
 
     makeSearch();

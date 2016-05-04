@@ -24,13 +24,14 @@ let spellcheck: natural.Spellcheck;
 // Parse some text for the spellchecker.
 fs.readFile('./src/lib/big.txt', (err, data) => {
   if (err) {
-    console.log(err);
     return;
   }
 
   const words = _.words(data.toString().toLocaleLowerCase());
-  spellcheck = new natural.Spellcheck(words);
-  console.log('spellcheck ready!');
+  process.nextTick(() => {
+    spellcheck = new natural.Spellcheck(words);
+    console.log('spellcheck ready!');
+  });
 });
 
 /** Look up the spelling of a word, and respond. */

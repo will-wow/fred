@@ -43,7 +43,7 @@ class PieChecker {
         let pieOfTheDay;
 
         if (err) {
-          console.log('ERROR', err);
+          console.log('INSTAGRAM ERROR', err);
           reject();
           return;
         }
