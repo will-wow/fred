@@ -11,8 +11,8 @@ const httpAdapter = 'http';
 const geocoder = geocoderModule(geocoderProvider, httpAdapter);
 
 // Initialize the timezone lookup library.
-// Wait a tick, so it doesn't mess with connecting to slack.
-process.nextTick(() => tzwhere.init());
+// Wait a bit, so this doesn't mess with connecting to slack.
+setTimeout(() => tzwhere.init(), 30 * 1000);
 
 interface Geo {
   lat: string;
