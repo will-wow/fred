@@ -25,7 +25,6 @@ export = (robot: hubot.Robot) => {
   const sunsetBrain = new SunsetBrain(robot, 'sunsetRoomReminders');
 
   robot.respond(/when is sunset(?: at (.*))?/i, (res: hubot.Response) => {
-    console.log('when is sunset');
     const address = res.match[1] || DEFAULT_ADDRESS;
     const sunsetPlace = new SunsetPlace(address);
 
