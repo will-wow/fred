@@ -30,7 +30,7 @@ class PieChecker {
   /**
    * Checks for Pies of the Day.
    */
-  constructor (
+  constructor(
 
   ) {
 
@@ -117,7 +117,11 @@ class PieChecker {
    * @returns True if the post is for the pie of the day.
    */
   private isPieOfTheDay(post): boolean {
-    return post.type === 'image' && _.includes(post.tags, 'potd');
+    return post.type === 'image' && (
+      _.includes(post.tags, 'potd') ||
+      post.caption.text.includes('of the day') ||
+      post.caption.text.includes('potd')
+    );
   }
 }
 
