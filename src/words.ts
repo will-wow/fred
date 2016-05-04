@@ -22,6 +22,7 @@ const wordnet = new natural.WordNet();
 let spellcheck: natural.Spellcheck;
 
 // Parse some text for the spellchecker.
+/**
 fs.readFile('./src/lib/big.txt', (err, data) => {
   if (err) {
     return;
@@ -33,7 +34,7 @@ fs.readFile('./src/lib/big.txt', (err, data) => {
     console.log('spellcheck ready!');
   });
 });
-
+ */
 /** Look up the spelling of a word, and respond. */
 function getSpelling(res: hubot.Response, word: string): string {
   if (spellcheck.isCorrect(word)) {
