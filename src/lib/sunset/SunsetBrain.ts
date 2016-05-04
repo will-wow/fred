@@ -37,6 +37,3 @@ class SunsetBrain extends ReminderBrain {
 }
 
 export default SunsetBrain;
-
-
-

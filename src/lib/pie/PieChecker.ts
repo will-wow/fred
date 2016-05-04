@@ -1,7 +1,9 @@
 import _ = require('lodash');
+import moment = require('moment-timezone');
 const ig = require('instagram-node').instagram();
 
 const PIZZA_ID = '264145867'; // ID for the 800degreespizza user.
+const TIMEZONE = 'America/Los_Angeles';
 
 /**
  * Slack attachment for potds.
@@ -50,6 +52,11 @@ class PieChecker {
 
         // Loop through the posts, looking for the potd.
         _.forEach(medias, (post) => {
+          // If we reach a post not from today, then there's no potd.
+          if (!this.isPostFromToday(post)) {
+            return false;
+          }
+
           if (this.isPieOfTheDay(post)) {
             // Get the pie.
             pieOfTheDay = post;
@@ -89,6 +96,13 @@ class PieChecker {
     attachment.fallback = `${attachment.content.title} ${attachment.content.text}: ${attachment.content.title_link}`;
 
     return attachment;
+  }
+
+  private isPostFromToday(post): boolean {
+    // Convert to epoch time.
+    const createdTime = _.toNumber(post.created_time + '000');
+
+    return moment.tz(createdTime, TIMEZONE).isSame(moment().tz(TIMEZONE).subtract(1, 'days'), 'day');
   }
 
   /**

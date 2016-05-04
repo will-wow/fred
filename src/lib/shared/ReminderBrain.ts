@@ -22,7 +22,7 @@ abstract class ReminderBrain {
    * @param {string} namespace - The namespace for the reminders in the brain.
    */
   constructor(
-    private robot: hubot.Robot,
+    public robot: hubot.Robot,
     private namespace: string
   ) {
     // Get the reminders from storage, once they're loaded.
@@ -60,7 +60,8 @@ abstract class ReminderBrain {
   abstract getReminderTime(data: any): Promise<ReminderTime>
 
   /**
-   * Gets the message for a reminder. Called at reminder time.
+   * Gets the message for a reminder. Called at reminder time. Use an empty resolve to
+   * not send a message, if your function does it itself.
    */
   abstract getReminderMessage(room: string, data: any, timeData: any): Promise<string>
 
@@ -74,7 +75,7 @@ abstract class ReminderBrain {
   /**
    * Set a reminder for a room, using some data.
    */
-  setRoomReminder(room: string, data: any): void {
+  setRoomReminder(room: string, data?: any): void {
     this.getReminderData(data)
     .then((reminderData) => {
       // Set up the chron job for today.
@@ -169,8 +170,10 @@ abstract class ReminderBrain {
           // Get the message.
           this.getReminderMessage(room, data, timeData.data)
           .then((message) => {
-            // Message the room.
-            this.robot.messageRoom(room, message);
+            if (message) {
+              // Message the room.
+              this.robot.messageRoom(room, message);
+            }
           });
         },
         // Start immediatly.
