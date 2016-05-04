@@ -113,6 +113,14 @@ export = (robot: hubot.Robot) => {
     res.send(fortuneSource.fortune());
   });
 
+  robot.hear(/light ?weight/i, (res: hubot.Response) => {
+    res.send('Yeeaaah buddy!');
+  });
+
+  robot.hear(/ye+a+h buddy/i, (res: hubot.Response) => {
+    res.send('Lightweight!');
+  });
+
   robot.catchAll((res) => {
     // Only respond to direct messages.
     if (_.words(res.message.text)[0] !== robot.name) {

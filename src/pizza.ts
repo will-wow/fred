@@ -22,7 +22,7 @@ export = (robot: hubot.Robot) => {
   const pieChecker = new PieChecker();
   const pieBrain = new PieBrain(robot);
 
-  robot.respond(/what(:?'s| is) the (?:pie of the day|pizza of the day|potd)/i, (res: hubot.Response) => {
+  robot.respond(/what(:?.s| is) the (?:pie of the day|pizza of the day|potd)/i, (res: hubot.Response) => {
     pieChecker.getLastPie(res.message.room)
     .then((pieAttachment: PieAttachment) => {
       if (robot.adapterName === 'slack') {
