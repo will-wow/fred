@@ -23,7 +23,7 @@ export = (robot: hubot.Robot) => {
   robot.respond(/what(:?'s| is) the (?:pie of the day|pizza of the day|potd)/i, (res: hubot.Response) => {
     pieChecker.getLastPie(res.message.room)
     .then((pieAttachment: PieAttachment) => {
-      if (robot.adapter === 'slack') {
+      if (robot.adapterName === 'slack') {
         robot.emit('slack.attachment', pieAttachment);
       } else {
         res.send(pieAttachment.fallback);

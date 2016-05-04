@@ -96,6 +96,7 @@ declare module hubot {
     brain: Brain
     alias: boolean
     adapter: any
+    adapterName: string;
     Response: Response
     commands: any[]
     listners: Function[]

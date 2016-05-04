@@ -60,7 +60,7 @@ export = (robot: hubot.Robot) => {
   });
 
   robot.respond(/what adapter is this/i, (res: hubot.Response) => {
-    res.send(robot.adapter);
+    res.send(robot.adapterName);
   });
 
   robot.respond(/what do you think (?:about|of) (.+)/i, (res: hubot.Response) => {
