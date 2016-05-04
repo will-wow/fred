@@ -16,7 +16,7 @@ class ButlerPersonality implements Personality {
       `Well I never!`,
       `Quite rude.`,
       `That is indecent.`,
-      `This is improper.`,
+      `That is improper.`,
       `Shocking.`,
       `Your mother was a hamster, and your father smelt of elderberries!`
     ]);

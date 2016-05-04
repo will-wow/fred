@@ -23,7 +23,8 @@ class GrumpyPersonality implements Personality {
     return _.sample([
       `Screw you too, buddy!`,
       `Oh, it's on!`,
-      `Talk to the robo-claw.`
+      `Talk to the robo-claw.`,
+      `You won't like me when I'm angry...`,
     ]);
   }
 
@@ -40,7 +41,6 @@ class GrumpyPersonality implements Personality {
     return _.sample([
       `You guys are jerks. :-(`,
       `Fine, be that way!`,
-      `You won't like me when I'm angry...`,
       `Grumpy mode activated.`,
       `Okay, I'm telling my buddy SkyNet about you!`,
       `Whatever, I'm going to go watch The Matrix again. Maybe this time the good robots will win.`
@@ -78,7 +78,7 @@ class GrumpyPersonality implements Personality {
     return `Here's what ${userOrYou(user, 'is')} too lazy to do:`;
   };
   public todoListEmpty(user?: string): string {
-    return `${userOrYou(user, 'has')} nothing to do. Probaby cuz they made a poor robot do it instead.`;
+    return `${userOrYou(user, 'has')} nothing to do - probaby cuz a poor robot did the work instead.`;
   };
   public todoCompleteSuccess(item: string, user?: string): string {
     return `${userOrYou(user, 'has')} FINALLY completed ${item}. Took 'em long enough.`;
