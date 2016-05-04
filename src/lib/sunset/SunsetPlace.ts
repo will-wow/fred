@@ -11,7 +11,7 @@ const httpAdapter = 'http';
 const geocoder = geocoderModule(geocoderProvider, httpAdapter);
 
 // Initialize the timezone lookup library.
-tzwhere.init();
+// tzwhere.init();
 
 interface Geo {
   lat: string;
