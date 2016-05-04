@@ -12,10 +12,11 @@ const geocoder = geocoderModule(geocoderProvider, httpAdapter);
 
 // Initialize the timezone lookup library.
 // Wait a bit, so this doesn't mess with connecting to slack.
+// TODO: Figure out a way to get this delay to not break the timezone finder.
 // setTimeout(() => {
 //   tzwhere.init();
 //   console.log('tzwhere ready!');
-// }, 60 * 1000);
+// }, 5 * 60 * 1000);
 
 interface Geo {
   lat: string;
@@ -24,7 +25,7 @@ interface Geo {
 
 /** Represents a place */
 class SunsetPlace {
-  public promise: Promise<SunsetPlace>
+  public promise: Promise<SunsetPlace>;
   public geo: Geo;
   public timezone: string;
 
@@ -62,7 +63,8 @@ class SunsetPlace {
         };
 
         // Look up the timezone for the place, and save that for formatting later.
-        const timezone: string = tzwhere.tzNameAt(geo.lat, geo.lng);
+        // TODO: Turn off the hack that gets around init() not running.
+        const timezone: string = 'America/Los_Angeles'; // tzwhere.tzNameAt(geo.lat, geo.lng);
 
         this.geo = geo;
         this.timezone = timezone;
