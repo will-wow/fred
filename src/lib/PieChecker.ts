@@ -81,7 +81,7 @@ class PieChecker {
         title: 'Pie of the day! :pizza:',
         title_link: post.link,
         text: post.caption.text,
-        thumb_url: post.images.thumbnail
+        thumb_url: post.images.thumbnail.url
       }
     };
 
