@@ -99,10 +99,16 @@ class PieChecker {
   }
 
   private isPostFromToday(post): boolean {
+    // Don't worry about day for development after midnight or on the weekend.
+    if (process.env.PIE_OF_THE_DAY_DEV) {
+      return true;
+    }
+
     // Convert to epoch time.
     const createdTime = _.toNumber(post.created_time + '000');
+    const today = moment().tz(TIMEZONE);
 
-    return moment.tz(createdTime, TIMEZONE).isSame(moment().tz(TIMEZONE).subtract(1, 'days'), 'day');
+    return moment.tz(createdTime, TIMEZONE).isSame(today, 'day');
   }
 
   /**

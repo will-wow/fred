@@ -11,10 +11,16 @@ const TIMEZONE = 'America/Los_Angeles';
 
 /**
  * Get the time for a pie of the day post today.
+ * @returns a moment for the time to check for the potd.
  */
 function getPieTime(): moment.Moment {
-  return moment.tz(TIMEZONE).add(5, 'seconds');
-  //return moment.tz(TIMEZONE).set('hour', 11).set('minute', 0).set('second', 0);
+  // Always return 5 seconds from now for development.
+  if (process.env.PIE_OF_THE_DAY_DEV) {
+    return moment.tz(TIMEZONE).add(5, 'seconds');
+  }
+
+  // Return 11am, today.
+  return moment.tz(TIMEZONE).set('hour', 11).startOf('hour');
 }
 
 /**
@@ -42,14 +48,13 @@ class PieBrain extends ReminderBrain {
   getReminderMessage(room: string, data: void, formattedTime: string): Promise<string | void> {
     return this.pieChecker.getLastPie(room)
     .then((pieAttachment) => {
-      console.log('pie time!', pieAttachment);
-
       if (this.robot.adapterName === 'slack') {
         // Emit the attachment.
         this.robot.emit('slack.attachment', pieAttachment);
         // resolve with an empty payload, so the brain doesn't do any other message.
         return;
       } else {
+        // Return the fallback for messaging.
         return pieAttachment.fallback;
       }
     })
