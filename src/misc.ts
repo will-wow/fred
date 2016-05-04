@@ -59,6 +59,10 @@ export = (robot: hubot.Robot) => {
     res.send(names.join(', '));
   });
 
+  robot.respond(/what adapter is this/i, (res: hubot.Response) => {
+    res.send(robot.adapter);
+  });
+
   robot.respond(/what do you think (?:about|of) (.+)/i, (res: hubot.Response) => {
     const message = res.match[1];
 
