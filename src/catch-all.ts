@@ -21,10 +21,7 @@ const cleverbots = new Cleverbots;
 function delegateToCleverbot(res: hubot.Response, message: string): void {
   cleverbots.ask(res.message.room, message)
   .then((response) => res.send(response))
-  .catch((error) => {
-    console.log('Cleverbot error', error);
-    res.send(`Sorry, I can't connect to Cleverbot right now.`);
-  });
+  .catch((error) => res.send(`Sorry, I can't connect to Cleverbot right now.`));
 }
 
 type CatchAll = (res: hubot.Response, sentimentScore: number, message: string) => void;

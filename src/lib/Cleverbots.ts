@@ -1,4 +1,5 @@
 const Cleverbot: ICleverbotClass = require("cleverbot.io");
+const randomstring = require("randomstring");
 
 const API_USER: string = process.env.CLEVERBOT_API_USER;
 const API_KEY: string = process.env.CLEVERBOT_API_KEY;
@@ -14,7 +15,9 @@ interface ICleverbotClass {
 }
 
 class Cleverbots {
+  /** Session tokens for the rooms. */
   private roomSessions: { [room: string]: string } = {};
+  /** Connected cleverbots */
   private roomCleverbots: { [room: string]: ICleverbot } = {};
 
   constructor (
@@ -27,7 +30,8 @@ class Cleverbots {
       .then((bot: ICleverbot): void => {
         bot.ask(message, ((err: any, response: string): void => {
           if (err) {
-            reject(err);
+            console.log('cleverbot ask error:', response);
+            reject(response);
           } else {
             resolve(response);
           }
@@ -58,21 +62,23 @@ class Cleverbots {
     // New cleverbot
     const roomCleverbot = new Cleverbot(API_USER, API_KEY);
 
-    // Use the existing ession.
-    if (hasExistingSession) {
-      roomCleverbot.setNick(this.roomSessions[room]);
+    // If there's not an existing session token, generate one.
+    // Note that cleverbot is supposed to do this itself, but that seems to
+    // not work correctly.
+    if (!hasExistingSession) {
+      const session = randomstring.generate(7) + room;
+      this.roomSessions[room] = session;
     }
+
+    // Set the session to connect to previous chats.
+    roomCleverbot.setNick(this.roomSessions[room]);
 
     return new Promise((resolve, reject): void => {
       roomCleverbot.create((err: any, session: string) => {
         if (err) {
+          console.log('cleverbot create error:', err);
           reject(err);
           return;
-        }
-
-        // Stash the new session.
-        if (hasExistingSession) {
-          this.roomSessions[room] = session;
         }
 
         // Save the cleverbot instance.
