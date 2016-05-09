@@ -12,20 +12,18 @@
 
 import _ = require('lodash');
 const speak = require('speakeasy-nlp');
-const Cleverbot = require('cleverbot-node');
 
 import personality from './lib/personality/currentPersonality';
+import Cleverbots from './lib/Cleverbots';
 
-const cleverbot = new Cleverbot;
-
-Cleverbot.prepare(() => {
-  console.log('cleverbot ready!');
-});
+const cleverbots = new Cleverbots;
 
 function delegateToCleverbot(res: hubot.Response, message: string): void {
-  cleverbot.write(message, (response: string): void => {
-    console.log(response);
-    res.send(response['message']);
+  cleverbots.ask(res.message.room, message)
+  .then((response) => res.send(response))
+  .catch((error) => {
+    console.log('Cleverbot error', error);
+    res.send(`Sorry, I can't connect to Cleverbot right now.`);
   });
 }
 
