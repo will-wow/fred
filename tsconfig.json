@@ -6,7 +6,6 @@
     "sourceMap": true,
     "noImplicitAny": false,
     "rootDir": "src",
-    "sourceRoot": "src",
     "outDir": "scripts"
   },
   "exclude": [
