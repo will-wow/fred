@@ -120,22 +120,4 @@ export = (robot: hubot.Robot) => {
   robot.hear(/ye+a+h buddy/i, (res: hubot.Response) => {
     res.send('Lightweight!');
   });
-
-  robot.catchAll((res) => {
-    // Only respond to direct messages.
-    if (_.words(res.message.text)[0] !== robot.name) {
-      return;
-    }
-
-    // Calculate the sentiment of the statement. Negative numbers are negative sentiment.
-    const sentimentScore: number = speak.sentiment.analyze(res.message.text).score;
-
-    if (sentimentScore === 0) {
-      res.send(personality.getCurrent(res.message.room).catchAll());
-    } else if (sentimentScore < 0) {
-      res.send(personality.addNegative(res.message.room));
-    } else {
-      res.send(personality.addPositive(res.message.room));
-    }
-  });
 };

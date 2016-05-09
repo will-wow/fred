@@ -19,14 +19,14 @@ const grumpyPersonality = new GrumpyPersonality();
 class RoomMood {
   /** The rooms's current personaility. */
   public current: Personality;
+  /** True if the bot is grumpy in this room  */
+  public isGrumpy: boolean = false;
   /** The class of the room's personaility, for checking against. */
   private PersonalityClass: PersonalityClass;
   /** umber of negative comments */
   private negativeCount: number = 0;
   /** Number of positive comments */
   private positiveCount: number = 0;
-  /** True if teh bot is grumpy in this room  */
-  private isGrumpy: boolean = false;
 
   /**
    * The bot's mood in a room.

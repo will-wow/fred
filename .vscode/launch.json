@@ -5,7 +5,6 @@
       "name": "Attach to Fred",
       "type": "node",
       "request": "attach",
-      "port": 5858,
       "sourceMaps": true,
       "outDir": "${workspaceRoot}/scripts"
     }

@@ -55,6 +55,10 @@ class CurrentPersonality {
     return roomMood.checkForIgnoredCommand();
   }
 
+  public isGrumpy(room: string): boolean {
+    return this.roomPersonalities[room].isGrumpy;
+  }
+
   /** Return the Mood for the room. */
   private getCurrentRoomMood(room: string): RoomMood {
     // Set a random personality if there isn't one.

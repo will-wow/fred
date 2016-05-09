@@ -12,6 +12,8 @@
     "typings": "^0.7.9"
   },
   "dependencies": {
+    "cleverbot-node": "^0.2.1",
+    "cleverbot.io": "^1.0.4",
     "cron": "^1.1.0",
     "dotenv": "^2.0.0",
     "fortune-tweetable": "^0.2.1",
