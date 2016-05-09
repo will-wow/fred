@@ -48,7 +48,8 @@ abstract class ReminderBrain {
    * If not overridden, persist no data.
    */
   getReminderData(data: any): Promise<any> {
-    return Promise.resolve();
+    // Resolve with true, so checks that data exists succeed.
+    return Promise.resolve(true);
   }
 
   /**
