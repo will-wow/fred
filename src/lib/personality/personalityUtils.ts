@@ -18,8 +18,9 @@ interface ConjugateVerbOptions {
 export function conjugateVerb(noun: string, verb: string, options?: ConjugateVerbOptions): string {
   options = options || {};
 
-  const {negate, contraction} = options;
-
+  // TODO: use const {negate, contraction} = options; when destructuring is stable.
+  const negate = options.negate;
+  const contraction = options.contraction;
 
   const conjugatedVerb = _.includes(['i', 'we', 'you'], noun.toLowerCase()) ?
     nlp.verb(verb).conjugate().infinitive :
