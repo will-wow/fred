@@ -21,10 +21,10 @@ interface Rooms {
 };
 
 const ROOMS: Rooms = {
-  sunset: ['triangle', 'south east'],
+  sunset: ['triangle', 'south east', 'kings landing'],
   venice: ['workout', 'standup', 'playstation', 'couch', 'south west'],
-  hollywood: ['rectangle', 'corner', 'north east'],
-  mulholland: ['reception', 'other']
+  hollywood: ['rectangle', 'corner', 'north east', 'winterfell'],
+  mulholland: ['reception', 'shared', 'castle black']
 };
 
 function joinRoomNames(names: string[]): string {
