@@ -24,7 +24,7 @@ export = (robot: hubot.Robot) => {
     res.send(res.message.room);
   });
 
-  robot.respond(/say "(.+)" to (.+)/i, (res: hubot.Response) => {
+  robot.respond(/say (.+) to (.+)/i, (res: hubot.Response) => {
     const message: string = res.match[1];
     const room: string = res.match[2];
 
