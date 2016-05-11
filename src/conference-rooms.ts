@@ -78,8 +78,8 @@ Mulholland: ${getRoomNames('mulholland')}`
     });
 
     // No room found.
-    if (!name) {
-      return res.send(personality.getCurrent(res.message.room).conferenceRoomNotFound(roomName));
+    if (!roomName) {
+      return res.send(personality.getCurrent(res.message.room).conferenceRoomNotFound(name));
     }
 
     // Room found. Return its name, and its other aliases.
