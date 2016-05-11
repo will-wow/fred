@@ -22,7 +22,7 @@ interface Rooms {
 
 const ROOMS: Rooms = {
   sunset: ['triangle', 'south east', 'kings landing'],
-  venice: ['workout', 'standup', 'playstation', 'couch', 'south west'],
+  venice: ['workout', 'standup', 'playstation', 'couch', 'south west', 'flea bottom'],
   hollywood: ['rectangle', 'corner', 'north east', 'winterfell'],
   mulholland: ['reception', 'shared', 'castle black']
 };
@@ -78,7 +78,7 @@ Mulholland: ${getRoomNames('mulholland')}`
     });
 
     // No room found.
-    if (!roomName) {
+    if (!name) {
       return res.send(personality.getCurrent(res.message.room).conferenceRoomNotFound(roomName));
     }
 
