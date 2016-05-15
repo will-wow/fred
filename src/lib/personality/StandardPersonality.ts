@@ -98,6 +98,32 @@ class StandardPersonality implements Personality {
   public sunsetReminderClearFailed(): string {
     return `That was easy, I wasn't tracking sunsets here anyway!`;
   };
+
+  pieIsTasty(): string {
+    return _.sample([
+      `Nice, those pie masters have outdone themselves again!`,
+      `Yum!`,
+      `If I was a human, instead of a robot, I would be all about this pie.`,
+      `Looks tasty!`,
+      `Sounds pretty good!`
+    ]);
+  };
+  pieIsNasty(): string {
+    return _.sample([
+      `Yuck.`,
+      `Ew.`,
+      `Nope nope nope.`,
+      `Probably not today.`
+    ]);
+  };
+  pieIsFine(): string {
+    return _.sample([
+      `Meh.`,
+      `Eh.`,
+      `Probably not the best.`,
+      `You can't win 'em all.`
+    ]);
+  };
 };
 
 export default StandardPersonality;

@@ -128,6 +128,25 @@ class GrumpyPersonality implements Personality {
   private botWillRespond(): boolean {
     return _.random(1, 10) <= 9;
   }
+
+  pieIsTasty(): string {
+    return _.sample([
+      `Yeah, this pie is way too good for the likes of you.`,
+      `This pie looks pretty good. They're probably out though, so I wouldn't bother.`,
+      `You don't deserve a pie this tasty.`
+    ]);
+  };
+  pieIsNasty(): string {
+    return _.sample([
+      `This pie sounds nasty - so it's probably perfect for you.`,
+      `I wouldn't give this pie to my worst enenmy. You should go get one.`
+    ]);
+  };
+  pieIsFine(): string {
+    return _.sample([
+      `The pie is as boring as you are.`
+    ]);
+  };
 };
 
 export default GrumpyPersonality;

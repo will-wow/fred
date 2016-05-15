@@ -31,6 +31,10 @@ interface Personality {
   sunsetReminderSet(): string;
   sunsetReminderCleared(): string;
   sunsetReminderClearFailed(): string;
+
+  pieIsTasty(): string;
+  pieIsNasty(): string;
+  pieIsFine(): string;
 };
 
 export default Personality;

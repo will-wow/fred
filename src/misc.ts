@@ -15,7 +15,18 @@
 
 import _ = require('lodash');
 const speak = require('speakeasy-nlp');
-const fortuneSource = require('fortune-tweetable');
+
+let fortuneSource;
+
+// fortune-tweetable doesn't seem to work on windows.
+try {
+  fortuneSource = require('fortune-tweetable');
+}
+catch (e) {
+  fortuneSource = {
+    fortune: (): string => `No fortunes found.`
+  };
+}
 
 import personality from './lib/personality/currentPersonality';
 

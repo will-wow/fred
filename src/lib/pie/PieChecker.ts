@@ -2,8 +2,32 @@ import _ = require('lodash');
 import moment = require('moment-timezone');
 const ig = require('instagram-node').instagram();
 
+import personality from '../personality/currentPersonality';
+
 const PIZZA_ID = '264145867'; // ID for the 800degreespizza user.
 const TIMEZONE = 'America/Los_Angeles';
+
+const TASTY_THINGS = [
+  'margherita',
+  'verde',
+  'sausage',
+  'meatball',
+  'bacon',
+  'soppressata',
+  'salami',
+  'ham',
+  'feta',
+  'gorgonzola',
+  'jalapeño',
+  'onion',
+  'pine nut',
+  'artichoke'
+];
+
+const NASTY_THINGS = [
+  'bianca',
+  'mushroom'
+];
 
 /**
  * Slack attachment for potds.
@@ -30,11 +54,7 @@ class PieChecker {
   /**
    * Checks for Pies of the Day.
    */
-  constructor(
-
-  ) {
-
-  }
+  constructor() {}
 
   public getLastPie(room: string): Promise<PieAttachment> {
     return new Promise((resolve, reject) => {
@@ -81,13 +101,29 @@ class PieChecker {
    * @returns The stack attachment data.
    */
   private formatSlackAttachment(room: string, post): PieAttachment {
+    const currentPersonality = personality.getCurrent(room);
+
+    const pieTastiness: number = this.checkPieTastiness(post);
+
+    // Get a message based on how tasty the pie is.
+    // TODO: Maybe only display tasty pies.
+    let pieMessage: string;
+
+    if (pieTastiness === 1) {
+      pieMessage = currentPersonality.pieIsTasty();
+    } else if (pieTastiness === -1) {
+      pieMessage = currentPersonality.pieIsNasty();
+    } else {
+      pieMessage = currentPersonality.pieIsFine();
+    }
+
     const attachment: PieAttachment = {
       channel: room,
       fallback: '',
       content: {
         title: 'Pie of the day! :pizza:',
         title_link: post.link,
-        text: post.caption.text,
+        text: post.caption.text + '\n' + pieMessage,
         thumb_url: post.images.thumbnail.url
       }
     };
@@ -122,6 +158,33 @@ class PieChecker {
       post.caption.text.includes('of the day') ||
       post.caption.text.includes('potd')
     );
+  }
+
+  /**
+   * Checks if the pie in a post is tasty.
+   * @param post
+   * @returns 1 if tasty, -1 if nasty, 0 if neutral.
+   */
+  private checkPieTastiness(post): number {
+    const text: string = post.caption.text;
+
+    const tastyThingCount: number = _.reduce(TASTY_THINGS, (count: number, thing: string): number => {
+      return text.includes(thing) ? count + 1 : count;
+    }, 0);
+
+    const nastyThingCount: number = _.reduce(NASTY_THINGS, (count: number, thing: string): number => {
+      return text.includes(thing) ? count + 1 : count;
+    }, 0);
+
+    if (nastyThingCount) {
+      return -1;
+    }
+
+    if (tastyThingCount >= 3) {
+      return 1;
+    }
+
+    return 0;
   }
 }
 

@@ -15,7 +15,7 @@ import _ = require('lodash');
 import personality from './lib/personality/currentPersonality';
 
 function messageIsCommand(robot: hubot.Robot, message: hubot.ResponseMessage): boolean {
-  const text = message.text || <string>_.get(message, 'TextMessage.text');
+  const text = message.text || _.get<string>(message, 'TextMessage.text');
 
   if (text === undefined) {
     return false;
