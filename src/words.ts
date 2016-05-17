@@ -17,21 +17,13 @@ import _ = require('lodash');
 import fs = require('fs');
 
 import personality from './lib/personality/currentPersonality';
+import spellcheckLoader from './lib/spellcheckLoader';
 
 const wordnet = new natural.WordNet();
 let spellcheck: natural.Spellcheck;
 
-// Parse some text for the spellchecker.
-fs.readFile('./src/lib/big.txt', (err, data) => {
-  if (err) {
-    return;
-  }
-
-  const words = _.words(data.toString().toLocaleLowerCase());
-  process.nextTick(() => {
-    spellcheck = new natural.Spellcheck(words);
-    console.log('spellcheck ready!');
-  });
+spellcheckLoader.then((spellcheckInstance) => {
+  spellcheck = spellcheckInstance;
 });
 
 /** Look up the spelling of a word, and respond. */
