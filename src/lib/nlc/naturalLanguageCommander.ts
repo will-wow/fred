@@ -81,10 +81,76 @@ class NaturalLanguageCommander {
 
     // Clean up the input.
     command = this.cleanCommand(command);
+
+
   }
 
-  private convertSlotTypeToRegex(slotType: ISlotType) {
+  private convertUtteranceToRegex(
+    utterance: string,
+    slots: IIntentSlot[]
+  ): { utterance: RegExp, mapping: string[] } {
+    const slotMapping = [];
 
+    // Handle slot replacement.
+    if (slots && slots.length) {
+      const slotRegexp: RegExp = /{(\w+)}/g;
+      const names: string[] = _.map<IIntentSlot, string>(slots, 'name');
+      let matches: string[];
+
+      // Loop while there are still slots left.
+      while ((matches = slotRegexp.exec(utterance)) !== null) {
+        const slotName: string = matches[1];
+
+        if (_.includes(names, slotName)) {
+          // Find where in the slot names array this slot is.
+          const slotIndex: number = names.indexOf(slotName);
+          // Find the matching slot type.
+          const slotType: string = slots[slotIndex].type;
+
+          // Update the utterance.
+          utterance = this.repaceSlotWithCaptureGroup(
+            utterance,
+            slotRegexp.lastIndex,
+            slotName
+          );
+          // Record the match ordering for this slot in the utterance.
+          slotMapping.push(slotType);
+        }
+      }
+    }
+
+    utterance = this.replaceSpacesForRegexp(utterance);
+    utterance = this.replaceBracesForRegexp(utterance);
+
+    return {
+      // Compile the regular expression, with global and ignore case.
+      utterance: new RegExp(utterance, 'gi'),
+      mapping: slotMapping
+    };
+  }
+
+  /** Replace runs of spaces with the space character, for better matching. */
+  private replaceSpacesForRegexp(utterance: string): string {
+    return _.replace(utterance, /\s+/g, '\\s+');
+  }
+
+  /** Escape braces that would cause a problem with regular expressions. */
+  private replaceBracesForRegexp(utterance: string): string {
+    utterance
+    .replace('[', '\\[')
+    .replace(']', '\\]')
+    .replace('(', '\\(')
+    .replace(')', '\\)');
+
+    return utterance;
+  }
+
+  private repaceSlotWithCaptureGroup(utterance: string, lastIndex: number, slotName: string): string {
+    // Find the beginning of the slot name (accounting for braces).
+    const firstIndex: number = lastIndex - (slotName.length + 2);
+
+    // Replace the slot with a generic capture group.
+    return utterance.slice(0, firstIndex) + '(.+)' + utterance.slice(lastIndex);
   }
 
   /**
