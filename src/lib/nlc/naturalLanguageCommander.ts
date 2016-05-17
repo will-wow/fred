@@ -42,9 +42,16 @@ export interface IIntent {
   utterances: string[] | string[][];
 }
 
+/** Internal utterance matcher. */
+interface IUtteranceMatcher {
+  matcher: RegExp;
+  mapping: IIntentSlot[];
+}
+
 class NaturalLanguageCommander {
   private slotTypes = [];
   private intents = [];
+  private matchers: IUtteranceMatcher[] = [];
 
   /** Holds registered natural language commands. */
   constructor () {
@@ -82,14 +89,74 @@ class NaturalLanguageCommander {
     // Clean up the input.
     command = this.cleanCommand(command);
 
+    // TODO: This.
+    return Promise.resolve('');
+  }
+
+  /**
+   * Check a command against an utterance matcher.
+   * @param command - The command text.
+   * @param matcher - An utternace matcher
+   * @returns false if no match, an object of slotNames to the matched data otherwise.
+   */
+  private checkCommandForMatch(
+    command: string,
+    matcher: IUtteranceMatcher
+  ): { [key: string]: any } | boolean {
+    const matches = command.match(matcher.matcher);
+
+    // If the command didn't match, failure.
+    if (!matches) {
+      return false;
+    }
+
+    // If it matched, and there are no slots, success!
+    // Return an empty array of slots.
+    if (matcher.mapping.length === 0) {
+      return [];
+    }
+
+    // Remove the global match, we don't need it.
+    matches.shift();
+
+    // Flag if there was a bad match.
+    let badMatch: boolean = false;
+    /** Map the slotNames to the matched data. */
+    let matchedSlots: { [key: string]: any } = {};
+
+    _.forEach(matcher.mapping, (slot: IIntentSlot, i: number) => {
+      const text = matches[i];
+      const slotData: any = this.checkSlotMatch(slot.type, text);
+
+      // If the slot didn't match, note the bad match, and exit early.
+      if (!slotData) {
+        badMatch = true;
+        return false;
+      }
+
+      // Associate the slot data with the name.
+      matchedSlots[slot.name] = slotData;
+    });
+
+    if (badMatch) {
+      return false;
+    } else {
+      return matchedSlots;
+    }
+  }
+
+  /**
+   * Check text for a slotType match.
+   * @param slotType - The slotType name
+   * @param text - The text to match against.
+   * @returns undefined if no match, otherwise the return value of the slot type.
+   */
+  private checkSlotMatch(slotType: string, text: string): any {
 
   }
 
-  private convertUtteranceToRegex(
-    utterance: string,
-    slots: IIntentSlot[]
-  ): { utterance: RegExp, mapping: string[] } {
-    const slotMapping = [];
+  private addUtteranceMatcher(utterance: string, slots: IIntentSlot[]): void {
+    const slotMapping: IIntentSlot[] = [];
 
     // Handle slot replacement.
     if (slots && slots.length) {
@@ -105,7 +172,7 @@ class NaturalLanguageCommander {
           // Find where in the slot names array this slot is.
           const slotIndex: number = names.indexOf(slotName);
           // Find the matching slot type.
-          const slotType: string = slots[slotIndex].type;
+          const slot: IIntentSlot = slots[slotIndex];
 
           // Update the utterance.
           utterance = this.repaceSlotWithCaptureGroup(
@@ -114,7 +181,7 @@ class NaturalLanguageCommander {
             slotName
           );
           // Record the match ordering for this slot in the utterance.
-          slotMapping.push(slotType);
+          slotMapping.push(slot);
         }
       }
     }
@@ -122,11 +189,12 @@ class NaturalLanguageCommander {
     utterance = this.replaceSpacesForRegexp(utterance);
     utterance = this.replaceBracesForRegexp(utterance);
 
-    return {
+    this.matchers.push({
       // Compile the regular expression, with global and ignore case.
-      utterance: new RegExp(utterance, 'gi'),
+      matcher: new RegExp(utterance, 'gi'),
+      // Store the mapping for later retrieval.
       mapping: slotMapping
-    };
+    });
   }
 
   /** Replace runs of spaces with the space character, for better matching. */
