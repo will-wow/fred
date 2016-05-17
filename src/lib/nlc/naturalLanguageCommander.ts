@@ -5,6 +5,7 @@
 
 import _ = require('lodash');
 
+import Deferred from '../Deferred';
 import * as utils from './nlcUtils';
 import * as standardSlots from './standardSlots';
 
@@ -44,8 +45,13 @@ export interface IIntent {
 
 /** Internal utterance matcher. */
 interface IUtteranceMatcher {
+  intent: IIntent;
   matcher: RegExp;
   mapping: IIntentSlot[];
+}
+
+type SlotMapping = {
+  [slotName: string]: any;
 }
 
 class NaturalLanguageCommander {
@@ -78,6 +84,8 @@ class NaturalLanguageCommander {
   public handleCommand(data: any, command: string): Promise<string>;
   public handleCommand(command: string): Promise<string>;
   public handleCommand(dataOrCommand: any, command?: string): Promise<string> {
+    const deferred = new Deferred();
+
     // Handle overload.
     let data: any;
     if (command) {
@@ -89,25 +97,66 @@ class NaturalLanguageCommander {
     // Clean up the input.
     command = this.cleanCommand(command);
 
-    // TODO: This.
-    return Promise.resolve('');
+    /** Flag if there was a match */
+    let foundMatch: boolean = false;
+
+    // TODO: Use nextTick here.
+    _.forEach(this.matchers, (matcher: IUtteranceMatcher) => {
+      const slotValues: SlotMapping = this.checkCommandForMatch(command, matcher);
+
+      if (slotValues) {
+        const orderedSlots: any[] = this.getOrderedSlots(matcher.intent, slotValues);
+
+        if (data) {
+          // Add the data as the first arg, if specified.
+          orderedSlots.unshift(data);
+        }
+
+        // Call the callback with the slot values in order.
+        matcher.intent.callback.apply(null, orderedSlots);
+        // Resolve with the intent name, for reference.
+        deferred.resolve(matcher.intent.intent);
+        // Flag that a match was found.
+        foundMatch = true;
+        // Exit early.
+        return false;
+      }
+    });
+
+    // Reject if no matches.
+    if (!foundMatch) {
+      deferred.reject();
+    }
+
+    return deferred.promise;
+  }
+
+  /**
+   * Get the slot values in the order specified by an intent.
+   * @param intent - The user's intent.
+   * @param slotMapping - The slot values mapped to their names.
+   * @returns The ordered array of slot values.
+   */
+  private getOrderedSlots(intent: IIntent, slotMapping: SlotMapping): any[] {
+    // Loop through the intent's slot ordering.
+    return _.map(intent.slots, (slot: IIntentSlot): any => {
+      // Add the slot values in order.
+      return slotMapping[slot.name];
+    });
   }
 
   /**
    * Check a command against an utterance matcher.
    * @param command - The command text.
    * @param matcher - An utternace matcher
-   * @returns false if no match, an object of slotNames to the matched data otherwise.
+   * @returns undefined if no match, an object of slotNames to the matched data otherwise.
    */
-  private checkCommandForMatch(
-    command: string,
-    matcher: IUtteranceMatcher
-  ): { [key: string]: any } | boolean {
+  private checkCommandForMatch(command: string, matcher: IUtteranceMatcher): SlotMapping {
     const matches = command.match(matcher.matcher);
 
     // If the command didn't match, failure.
     if (!matches) {
-      return false;
+      return;
     }
 
     // If it matched, and there are no slots, success!
@@ -122,7 +171,7 @@ class NaturalLanguageCommander {
     // Flag if there was a bad match.
     let badMatch: boolean = false;
     /** Map the slotNames to the matched data. */
-    let matchedSlots: { [key: string]: any } = {};
+    let matchedSlots: SlotMapping = {};
 
     _.forEach(matcher.mapping, (slot: IIntentSlot, i: number) => {
       const text = matches[i];
@@ -138,9 +187,7 @@ class NaturalLanguageCommander {
       matchedSlots[slot.name] = slotData;
     });
 
-    if (badMatch) {
-      return false;
-    } else {
+    if (!badMatch) {
       return matchedSlots;
     }
   }
@@ -155,7 +202,8 @@ class NaturalLanguageCommander {
 
   }
 
-  private addUtteranceMatcher(utterance: string, slots: IIntentSlot[]): void {
+  private addUtteranceMatcher(utterance: string, intent: IIntent): void {
+    const slots: IIntentSlot[] = intent.slots;
     const slotMapping: IIntentSlot[] = [];
 
     // Handle slot replacement.
@@ -190,6 +238,7 @@ class NaturalLanguageCommander {
     utterance = this.replaceBracesForRegexp(utterance);
 
     this.matchers.push({
+      intent,
       // Compile the regular expression, with global and ignore case.
       matcher: new RegExp(utterance, 'gi'),
       // Store the mapping for later retrieval.
