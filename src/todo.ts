@@ -50,10 +50,8 @@ export = (robot: hubot.Robot) => {
     );
   }
 
-  function markItemAsComplete(res: hubot.Response, index: string, user: string) {
-    const indexNumber = _.toNumber(index);
-
-    todo.complete(user, indexNumber - 1,
+  function markItemAsComplete(res: hubot.Response, index: number, user: string) {
+    todo.complete(user, index - 1,
       (removedItem: string) => res.send(personality.getCurrent(res.message.room).todoCompleteSuccess(removedItem, undefinedForSelf(res, user))),
       () => res.send(personality.getCurrent(res.message.room).todoCompleteNotFound(index, undefinedForSelf(res, user)))
     );
@@ -61,7 +59,7 @@ export = (robot: hubot.Robot) => {
 
   // Add item for user
   nlc.registerIntent({
-    intent: 'TODO_TELL',
+    intent: 'TODO_ADD_ITEM',
     slots: [
       {
         name: 'User',
@@ -73,10 +71,7 @@ export = (robot: hubot.Robot) => {
       }
     ],
     callback: (res: hubot.Response, user: string, item: string) => {
-      // Get the username, or the user's own name.
-      const finalUserName: string = user ? user : res.message.user.name;
-
-      addItem(res, finalUserName, item);
+      addItem(res, user || res.message.user.name, item);
     },
     utterances: [
       // Other User
@@ -100,45 +95,87 @@ export = (robot: hubot.Robot) => {
     ]
   });
 
-  // List items for user
-  robot.respond(/what do I have to ?do/i, (res: hubot.Response) => {
-    const user = res.message.user.name;
-
-    listItems(res, user);
+  // List items
+  nlc.registerIntent({
+    intent: 'TODO_LIST_ITEMS',
+    slots: [
+      {
+        name: 'User',
+        type: 'SLACK_NAME',
+      }
+    ],
+    callback: (res: hubot.Response, user: string) => {
+      listItems(res, user || res.message.user.name);
+    },
+    utterances: [
+      // Other User
+      'what does {User} have to do',
+      'what does {User} have todo',
+      'what does {User} have on my list',
+      'what does {User} have on the list',
+      'does {User} have anything to do?',
+      'what\'s on {User}\'s todo list?',
+      'what\'s on {User}\'s list?',
+      // Self
+      'what do I have to do',
+      'what do I have todo',
+      'what do I have on my list',
+      'what do I have on the list',
+      'do I have anything to do?',
+      'what\'s on my todo list?',
+      'what\'s on my list?'
+    ]
   });
 
-  // List items for self
-  robot.respond(/what does (.+) have to ?do/i, (res: hubot.Response) => {
-    const user = res.match[1].trim();
-
-    listItems(res, user);
-  });
-
-  // Complete item for other user
-  robot.respond(/mark #?([0-9]+) (?:as )?(?:done|complete|completed|finished) for (.+)/i, (res: hubot.Response) => {
-    const index = res.match[1].trim();
-    const user = res.match[2];
-
-    markItemAsComplete(res, index, user);
-  });
-  robot.respond(/(?:do|complete|finish) #?([0-9]+) for (.+)/, (res: hubot.Response) => {
-    const index = res.match[1];
-    const user = res.match[2].trim();
-
-    markItemAsComplete(res, index, user);
-  });
-
-  // Complete Item for self
-  robot.respond(/mark #?([0-9]+) (?:as )?(?:done|complete|completed|finished)$/i, (res: hubot.Response) => {
-    const index = res.match[1];
-    const user = res.message.user.name;
-
-    markItemAsComplete(res, index, user);
-  });
-  robot.respond(/(?:do|complete|finish) #?([0-9]+)/, (res: hubot.Response) => {
-    const index = res.match[1];
-    const user = res.message.user.name;
-
-    markItemAsComplete(res, index, user);
+  // List items
+  nlc.registerIntent({
+    intent: 'TODO_LIST_ITEMS',
+    slots: [
+      {
+        name: 'User',
+        type: 'SLACK_NAME',
+      },
+      {
+        name: 'Index',
+        type: 'NUMBER'
+      }
+    ],
+    callback: (res: hubot.Response, user: string, index: number) => {
+      markItemAsComplete(res, index, user || res.message.user.name);
+    },
+    utterances: [
+      // Other User
+      'mark {Index} as done for {User}',
+      'mark {Index} as complete for {User}',
+      'mark {Index} as completed for {User}',
+      'mark {Index} as finished for {User}',
+      'set {Index} as done for {User}',
+      'set {Index} as complete for {User}',
+      'set {Index} as completed for {User}',
+      'set {Index} as finished for {User}',
+      '{Index} is done for {User}',
+      '{Index} is complete for {User}',
+      '{Index} is completed for {User}',
+      '{Index} is finished for {User}',
+      'complete {Index} for {User}',
+      'finish {Index} for {User}',
+      'do {Index} for {User}',
+      // Self
+      'mark {Index} as done',
+      'mark {Index} as complete',
+      'mark {Index} as completed',
+      'mark {Index} as finished',
+      'set {Index} as done',
+      'set {Index} as complete',
+      'set {Index} as completed',
+      'set {Index} as finished',
+      '{Index} is done',
+      '{Index} is complete',
+      '{Index} is completed',
+      '{Index} is finished',
+      'complete {Index}',
+      'finish {Index}',
+      'do {Index}'
+    ]
   });
 };

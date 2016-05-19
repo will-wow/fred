@@ -73,12 +73,12 @@ export = (robot: hubot.Robot) => {
       return;
     }
 
+    const message: string = text.substr(text.indexOf(' ') + 1);
+
     // Try to handle it with a natural language command.
-    nlc.handleCommand(res, res.message.text)
+    nlc.handleCommand(res, message)
     // Handle uncaught comamnd.
     .catch(() => {
-      const message: string = text.substr(text.indexOf(' ') + 1);
-
       // Calculate the sentiment of the statement. Negative numbers are negative sentiment.
       const sentimentScore: number = speak.sentiment.analyze(message).score;
 

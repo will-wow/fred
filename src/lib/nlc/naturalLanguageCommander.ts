@@ -285,17 +285,9 @@ class NaturalLanguageCommander {
       const names: string[] = _.map<IIntentSlot, string>(slots, 'name');
       let matchIndex: number;
 
-      console.log(utterance);
-
-      if (utterance === 'make {User} {Item}') {
-        console.log(utterance.match(slotRegexp));
-      }
-
       // Loop while there are still slots left.
       while ((matchIndex = utterance.search(slotRegexp)) !== -1) {
         const slotName: string = utterance.match(slotRegexp)[1];
-
-        console.log(slotName, _.includes(names, slotName), utterance);
 
         if (_.includes(names, slotName)) {
           // Find where in the slot names array this slot is.
@@ -317,6 +309,9 @@ class NaturalLanguageCommander {
 
     utterance = this.replaceSpacesForRegexp(utterance);
     utterance = this.replaceBracesForRegexp(utterance);
+    // Add the start carat, so this only matches the start of commands,
+    // which helps with collisions.
+    utterance = '^\\s*' + utterance;
 
     return {
       intent,
