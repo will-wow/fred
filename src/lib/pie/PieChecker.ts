@@ -8,6 +8,7 @@ const PIZZA_ID = '264145867'; // ID for the 800degreespizza user.
 const TIMEZONE = 'America/Los_Angeles';
 
 const TASTY_THINGS = [
+  'pepperoni',
   'margherita',
   'verde',
   'sausage',
@@ -21,7 +22,8 @@ const TASTY_THINGS = [
   'jalapeño',
   'onion',
   'pine nut',
-  'artichoke'
+  'artichoke',
+  'cherry tomato'
 ];
 
 const NASTY_THINGS = [
