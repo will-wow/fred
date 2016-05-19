@@ -17,7 +17,7 @@ export interface ISlotType {
   /** The slot type name. */
   type: string;
   /** The associated options */
-  options: SlotTypeItem | SlotTypeItem[];
+  options: SlotTypeItem;
 }
 
 /** A slot to associate with an intent. */
@@ -56,7 +56,7 @@ type SlotMapping = {
 }
 
 class NaturalLanguageCommander {
-  private slotTypes: SlotTypeItem[] = [];
+  private slotTypes: { [name: string]: SlotTypeItem } = {};
   private intents: IIntent[] = [];
   private matchers: IUtteranceMatcher[] = [];
 
@@ -71,15 +71,25 @@ class NaturalLanguageCommander {
    * @param slotType
    */
   public addSlotType = (slotType: ISlotType): void => {
-
+    this.slotTypes[slotType.type] = slotType.options;
   };
 
   /**
    * Register an intent. Bound to this.
    * @param intent
    */
-  public registerIntent = (intent: IIntent): void => {
+  public registerIntent = (intent: IIntent): boolean => {
+    if (_.includes(_.map(this.intents, 'name'), intent.intent)) {
+      return false;
+    }
 
+    // Push in the intent.
+    this.intents.push(intent);
+
+    // Push in the utterance matchers.
+    _.forEach(intent.utterances, (utterance: string): void => {
+      this.matchers.push(this.getUtteranceMatcher(utterance, intent));
+    });
   };
 
   public handleCommand(data: any, command: string): Promise<string>;
@@ -161,7 +171,7 @@ class NaturalLanguageCommander {
     }
 
     // If it matched, and there are no slots, success!
-    // Return an empty array of slots.
+    // Return an empty array of slots, so the function return truthy.
     if (matcher.mapping.length === 0) {
       return [];
     }
@@ -174,6 +184,7 @@ class NaturalLanguageCommander {
     /** Map the slotNames to the matched data. */
     let matchedSlots: SlotMapping = {};
 
+    // Check each slot to see if it matches.
     _.forEach(matcher.mapping, (slot: IIntentSlot, i: number) => {
       const slotText = matches[i];
       const slotData: any = this.checkSlotMatch(slotText, slot.type);
@@ -188,6 +199,7 @@ class NaturalLanguageCommander {
       matchedSlots[slot.name] = slotData;
     });
 
+    // If there were no bad maches, return the slots. Otherwise return nothing.
     if (!badMatch) {
       return matchedSlots;
     }
@@ -261,7 +273,7 @@ class NaturalLanguageCommander {
     }
   }
 
-  private addUtteranceMatcher(utterance: string, intent: IIntent): void {
+  private getUtteranceMatcher(utterance: string, intent: IIntent): IUtteranceMatcher {
     const slots: IIntentSlot[] = intent.slots;
     const slotMapping: IIntentSlot[] = [];
 
@@ -296,13 +308,13 @@ class NaturalLanguageCommander {
     utterance = this.replaceSpacesForRegexp(utterance);
     utterance = this.replaceBracesForRegexp(utterance);
 
-    this.matchers.push({
+    return {
       intent,
       // Compile the regular expression, with global and ignore case.
       matcher: new RegExp(utterance, 'gi'),
       // Store the mapping for later retrieval.
       mapping: slotMapping
-    });
+    };
   }
 
   /** Replace runs of spaces with the space character, for better matching. */
