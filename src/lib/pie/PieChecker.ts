@@ -8,9 +8,9 @@ const PIZZA_ID = '264145867'; // ID for the 800degreespizza user.
 const TIMEZONE = 'America/Los_Angeles';
 
 const TASTY_THINGS = [
-  'pepperoni',
   'margherita',
   'verde',
+  'pepperoni',
   'sausage',
   'meatball',
   'bacon',
@@ -168,7 +168,7 @@ class PieChecker {
    * @returns 1 if tasty, -1 if nasty, 0 if neutral.
    */
   private checkPieTastiness(post): number {
-    const text: string = post.caption.text;
+    const text: string = post.caption.text.toLowerCase();
 
     const tastyThingCount: number = _.reduce(TASTY_THINGS, (count: number, thing: string): number => {
       return text.includes(thing) ? count + 1 : count;
