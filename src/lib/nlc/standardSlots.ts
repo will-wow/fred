@@ -46,3 +46,15 @@ export const DATE: ISlotType = {
     }
   }
 };
+
+export const SLACK_NAME: ISlotType = {
+  type: 'SLACK_NAME',
+  // Names start with @.
+  options: /^@.+/i
+};
+
+export const SLACK_ROOM: ISlotType = {
+  type: 'SLACK_ROOM',
+  // Rooms start with #, but names work too.
+  options: /[#@].+/i
+};
