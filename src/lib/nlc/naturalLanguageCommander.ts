@@ -9,7 +9,8 @@ import Deferred from '../Deferred';
 import * as utils from './nlcUtils';
 import * as standardSlots from './standardSlots';
 
-type SlotTypeItem = string | RegExp | ((message: string) => string);
+type SlotTypeFunction = (message: string) => string;
+type SlotTypeItem = string | string[] | RegExp | SlotTypeFunction;
 
 /** A slot type to be used in intents.. */
 export interface ISlotType {
@@ -55,8 +56,8 @@ type SlotMapping = {
 }
 
 class NaturalLanguageCommander {
-  private slotTypes = [];
-  private intents = [];
+  private slotTypes: SlotTypeItem[] = [];
+  private intents: IIntent[] = [];
   private matchers: IUtteranceMatcher[] = [];
 
   /** Holds registered natural language commands. */
@@ -174,8 +175,8 @@ class NaturalLanguageCommander {
     let matchedSlots: SlotMapping = {};
 
     _.forEach(matcher.mapping, (slot: IIntentSlot, i: number) => {
-      const text = matches[i];
-      const slotData: any = this.checkSlotMatch(slot.type, text);
+      const slotText = matches[i];
+      const slotData: any = this.checkSlotMatch(slotText, slot.type);
 
       // If the slot didn't match, note the bad match, and exit early.
       if (!slotData) {
@@ -198,8 +199,66 @@ class NaturalLanguageCommander {
    * @param text - The text to match against.
    * @returns undefined if no match, otherwise the return value of the slot type.
    */
-  private checkSlotMatch(slotType: string, text: string): any {
+  private checkSlotMatch(slotText: string, slotTypeName: string): any {
+    // Handle unknown slot types.
+    if (!this.slotTypes[slotTypeName]) {
+      throw new Error(`Slot Type ${slotTypeName} not found!`);
+    }
 
+    const slotType: SlotTypeItem = this.slotTypes[slotTypeName];
+
+    // Match the slot based on the type.
+    if (_.isRegExp(slotType)) {
+      return this.getRegexpSlot(slotText, slotType);
+    } else if (_.isString(slotType)) {
+      return this.getStringSlot(slotText, slotType);
+    } else if (_.isArray(slotType)) {
+      return this.getListSlotType(slotText, slotType);
+    } else {
+      return this.getFunctionSlotType(slotText, slotType);
+    }
+  }
+
+  /**
+   * Check the slot text against the slot regular expression, and return the text if it matches.
+   */
+  private getRegexpSlot(slotText: string, slotType: RegExp): string {
+    if (slotText.search(slotType)) {
+      return slotText;
+    }
+  }
+
+  /**
+   * Check if the string matches the slotType, and return the type's string if it does.
+   */
+  private getStringSlot(slotText: string, slotType: string): string {
+    if (slotText === slotType) {
+      // Return the actual slotText if it matches directly.
+      return slotText;
+    } else if (slotText.toLowerCase() === slotType) {
+      // If the lowercase matches, return the set type's capitaliztion.
+      return slotType;
+    }
+  }
+
+  /**
+   * Check if the string matches the slotType function, and return the function's return value if it does.
+   */
+  private getFunctionSlotType(slotText: string, slotType: SlotTypeFunction): string {
+    return slotType(slotText);
+  }
+
+  /**
+   * Check if the string is contained in the string array, and return it if it does.
+   */
+  private getListSlotType(slotText: string, slotType: string[]): string {
+    if (_.includes(slotType, slotText)) {
+      // Return the actual slotText if it matches directly.
+      return slotText;
+    } else if (_.includes(slotType, slotText.toLowerCase())) {
+      // If the lowercase matches, return the text's lowercase capitaliztion.
+      return slotText.toLowerCase();
+    }
   }
 
   private addUtteranceMatcher(utterance: string, intent: IIntent): void {
