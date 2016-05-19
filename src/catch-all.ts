@@ -15,6 +15,8 @@ const speak = require('speakeasy-nlp');
 
 import personality from './lib/personality/currentPersonality';
 import Cleverbots from './lib/Cleverbots';
+import nlc from './lib/nlc/naturalLanguageCommander';
+const Response = '../node_modules/hubot/src/response';
 
 const cleverbots = new Cleverbots;
 
@@ -71,11 +73,16 @@ export = (robot: hubot.Robot) => {
       return;
     }
 
-    const message: string = text.substr(text.indexOf(' ') + 1);
+    // Try to handle it with a natural language command.
+    nlc.handleCommand(res, res.message.text)
+    // Handle uncaught comamnd.
+    .catch(() => {
+      const message: string = text.substr(text.indexOf(' ') + 1);
 
-    // Calculate the sentiment of the statement. Negative numbers are negative sentiment.
-    const sentimentScore: number = speak.sentiment.analyze(message).score;
+      // Calculate the sentiment of the statement. Negative numbers are negative sentiment.
+      const sentimentScore: number = speak.sentiment.analyze(message).score;
 
-    messageHandler(res, sentimentScore, message);
+      messageHandler(res, sentimentScore, message);
+    });
   });
 };

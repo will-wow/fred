@@ -9,11 +9,11 @@ import Deferred from '../Deferred';
 import * as utils from './nlcUtils';
 import * as standardSlots from './standardSlots';
 
-type SlotTypeFunction = (message: string) => string;
+type SlotTypeFunction = (message: string) => any;
 type SlotTypeItem = string | string[] | RegExp | SlotTypeFunction;
 
 /** A slot type to be used in intents.. */
-export interface ISlotType {
+export type ISlotType = {
   /** The slot type name. */
   type: string;
   /** The associated options */
@@ -21,23 +21,23 @@ export interface ISlotType {
 }
 
 /** A slot to associate with an intent. */
-export interface IIntentSlot {
+export type IIntentSlot = {
   /** The name used in the associated utterances. */
   name: string;
   /** The slot type. */
   type: string;
 }
 
-export interface IIntent {
+export type IIntent = {
   /** The intent name. */
   intent: string;
   /** The callback to run when the intent matches. */
-  callback: ((...slots: string[]) => void) | ((data: any, ...slots: string[]) => void);
+  callback: ((...slots: (string | any)[]) => void) | ((data: any, ...slots: string[]) => void);
   /**
    * The slots used in the utterances. Matched text will be returned as arguments
    * to the intent callback, in order.
    */
-  slots: IIntentSlot[];
+  slots?: IIntentSlot[];
   /**
    * Array of utterances to match, including slots like {SlotName}
    */
@@ -63,7 +63,7 @@ class NaturalLanguageCommander {
   /** Holds registered natural language commands. */
   constructor () {
     // Add the standard slot types.
-    _.forEach([standardSlots], this.addSlotType);
+    _.forOwn(standardSlots, this.addSlotType);
   }
 
   /**
@@ -235,7 +235,7 @@ class NaturalLanguageCommander {
    * Check the slot text against the slot regular expression, and return the text if it matches.
    */
   private getRegexpSlot(slotText: string, slotType: RegExp): string {
-    if (slotText.search(slotType)) {
+    if (slotType.test(slotText)) {
       return slotText;
     }
   }
@@ -279,13 +279,23 @@ class NaturalLanguageCommander {
 
     // Handle slot replacement.
     if (slots && slots.length) {
-      const slotRegexp: RegExp = /{(\w+)}/g;
+      // A lazy regexp that looks for words in curly braces.
+      // Don't use global, so it checks the new utterance fresh every time.
+      const slotRegexp: RegExp = /{(\w+?)}/;
       const names: string[] = _.map<IIntentSlot, string>(slots, 'name');
-      let matches: string[];
+      let matchIndex: number;
+
+      console.log(utterance);
+
+      if (utterance === 'make {User} {Item}') {
+        console.log(utterance.match(slotRegexp));
+      }
 
       // Loop while there are still slots left.
-      while ((matches = slotRegexp.exec(utterance)) !== null) {
-        const slotName: string = matches[1];
+      while ((matchIndex = utterance.search(slotRegexp)) !== -1) {
+        const slotName: string = utterance.match(slotRegexp)[1];
+
+        console.log(slotName, _.includes(names, slotName), utterance);
 
         if (_.includes(names, slotName)) {
           // Find where in the slot names array this slot is.
@@ -296,7 +306,7 @@ class NaturalLanguageCommander {
           // Update the utterance.
           utterance = this.repaceSlotWithCaptureGroup(
             utterance,
-            slotRegexp.lastIndex,
+            matchIndex,
             slotName
           );
           // Record the match ordering for this slot in the utterance.
@@ -310,8 +320,8 @@ class NaturalLanguageCommander {
 
     return {
       intent,
-      // Compile the regular expression, with global and ignore case.
-      matcher: new RegExp(utterance, 'gi'),
+      // Compile the regular expression, ignore case.
+      matcher: new RegExp(utterance, 'i'),
       // Store the mapping for later retrieval.
       mapping: slotMapping
     };
@@ -333,12 +343,12 @@ class NaturalLanguageCommander {
     return utterance;
   }
 
-  private repaceSlotWithCaptureGroup(utterance: string, lastIndex: number, slotName: string): string {
-    // Find the beginning of the slot name (accounting for braces).
-    const firstIndex: number = lastIndex - (slotName.length + 2);
+  private repaceSlotWithCaptureGroup(utterance: string, matchIndex: number, slotName: string): string {
+    // Find the end of the slot name (accounting for braces).
+    const lastIndex: number = matchIndex + (slotName.length + 2);
 
     // Replace the slot with a generic capture group.
-    return utterance.slice(0, firstIndex) + '(.+)' + utterance.slice(lastIndex);
+    return utterance.slice(0, matchIndex) + '(.+)' + utterance.slice(lastIndex);
   }
 
   /**

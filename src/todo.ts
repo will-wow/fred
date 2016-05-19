@@ -20,6 +20,7 @@ import _ = require('lodash');
 
 import personality from './lib/personality/currentPersonality';
 import Todo, {TodoList} from './lib/Todo';
+import nlc from './lib/nlc/naturalLanguageCommander';
 
 function undefinedForSelf (res: hubot.Response, user: string): string {
   return res.message.user.name === user ? undefined : user;
@@ -59,23 +60,44 @@ export = (robot: hubot.Robot) => {
   }
 
   // Add item for user
-  robot.respond(/(?:tell|remind) (.+) to (.+)/i, (res: hubot.Response) => {
-    const user = res.match[1].trim();
-    const item = res.match[2];
+  nlc.registerIntent({
+    intent: 'TODO_TELL',
+    slots: [
+      {
+        name: 'User',
+        type: 'SLACK_NAME',
+      },
+      {
+        name: 'Item',
+        type: 'STRING'
+      }
+    ],
+    callback: (res: hubot.Response, user: string, item: string) => {
+      // Get the username, or the user's own name.
+      const finalUserName: string = user ? user : res.message.user.name;
 
-    const finalUserName: string = _.includes(['me', 'myself'], user.trim()) ?
-      res.message.user.name :
-      user;
-
-    addItem(res, finalUserName, item);
-  });
-
-  // Add item for self
-  robot.respond(/put (.+) on my (?:todo )?list/i, (res: hubot.Response) => {
-    const user = res.message.user.name;
-    const item = res.match[1];
-
-    addItem(res, user, item);
+      addItem(res, finalUserName, item);
+    },
+    utterances: [
+      // Other User
+      'tell {User} to {Item}',
+      'remind {User} to {Item}',
+      'have {User} do {Item}',
+      'get {User} to {Item}',
+      'make {User} {Item}',
+      '{User} has to {Item}',
+      'put {Item} on {User}\'s todo list',
+      'put {Item} on {User}\'s list',
+      // Self
+      'tell me to {Item}',
+      'remind me to {Item}',
+      'have me {Item}',
+      'get me to {Item}',
+      'make me {Item}',
+      'I have to {Item}',
+      'put {Item} on my todo list',
+      'put {Item} on my list',
+    ]
   });
 
   // List items for user

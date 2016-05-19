@@ -21,9 +21,24 @@ const DATE_FORMATS = [
   'YYYY-M-D'
 ];
 
+export const STRING: ISlotType = {
+  type: 'STRING',
+  // Everything comes in as a string.
+  options: _.identity
+};
+
+export const NUMBER: ISlotType = {
+  type: 'NUMBER',
+  options: (text: string): number => {
+    const maybeNumber: number = _.toNumber(text);
+
+    return isNaN(maybeNumber) ? undefined : maybeNumber;
+  }
+}
+
 export const DATE: ISlotType = {
   type: 'DATE',
-  options: (dateString: string): any => {
+  options: (dateString: string): moment.Moment => {
     /*
      * Realitive dates.
      */
@@ -56,5 +71,5 @@ export const SLACK_NAME: ISlotType = {
 export const SLACK_ROOM: ISlotType = {
   type: 'SLACK_ROOM',
   // Rooms start with #, but names work too.
-  options: /[#@].+/i
+  options: /^[#@].+/i
 };
