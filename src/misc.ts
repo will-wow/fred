@@ -16,6 +16,8 @@
 import _ = require('lodash');
 const speak = require('speakeasy-nlp');
 
+import nlc from './lib/nlc/naturalLanguageCommander';
+
 let fortuneSource;
 
 // fortune-tweetable doesn't seem to work on windows.
@@ -35,12 +37,27 @@ export = (robot: hubot.Robot) => {
     res.send(res.message.room);
   });
 
-  robot.respond(/say (.+) to (.+)/i, (res: hubot.Response) => {
-    const message: string = res.match[1];
-    const room: string = res.match[2];
-
-    robot.messageRoom(room, message);
-    res.send(personality.getCurrent(res.message.room).done());
+  // Say to room/user.
+  nlc.registerIntent({
+    intent: 'MISC_SAY_TO',
+    slots: [
+      {
+        name: 'Message',
+        type: 'STRING',
+      },
+      {
+        name: 'Room',
+        type: 'SLACK_ROOM'
+      }
+    ],
+    callback: (res: hubot.Response, message: string, room: string) => {
+      robot.messageRoom(room, message);
+      res.send(personality.getCurrent(res.message.room).done());
+    },
+    utterances: [
+      'say {Message} to {Room}',
+      'foo {Bar} {Message} {Room}'
+    ]
   });
 
   robot.hear(/I (love|like|liek)(?: you)? fred/i, (res: hubot.Response) => {

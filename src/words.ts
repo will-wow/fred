@@ -18,6 +18,7 @@ import fs = require('fs');
 
 import personality from './lib/personality/currentPersonality';
 import spellcheckLoader from './lib/spellcheckLoader';
+import nlc from './lib/nlc/naturalLanguageCommander';
 
 const wordnet = new natural.WordNet();
 let spellcheck: natural.Spellcheck;
@@ -41,9 +42,30 @@ function getSpelling(res: hubot.Response, word: string): string {
   return corrections.join(', ');
 };
 
+const spellWords = (res: hubot.Response, input: string) => {
+  // Lowercase for better lookup.
+  input = input.toLowerCase();
+  // Split out words to spell each one.
+  const words = _.words(input);
+
+  // Spell a single word.
+  if (words.length === 1) {
+    res.send(getSpelling(res, words[0]));
+    return;
+  }
+
+  // Spell multiple words.
+  const response: string = _.map(words, function (word) {
+    return `${word}: ${getSpelling(res, word)}`;
+  }).join('\n');
+
+  res.send(response);
+};
+
 /** Respond to a a definition request. */
-function handleDefinition(res: hubot.Response) {
-  const word = res.match[1].toLowerCase();
+const defineWord = (res: hubot.Response, word: string): void => {
+  // Lowercase for better lookup.
+  word = word.toLowerCase();
 
   wordnet.lookup(word, (results): void => {
     // Handle a failed lookup.
@@ -60,26 +82,48 @@ function handleDefinition(res: hubot.Response) {
 Synonyms: ${result.synonyms}`
     );
   });
-}
+};
 
 export = (robot: hubot.Robot) => {
-  robot.respond(/(?:how do (?:you|I) )?spell (.+)\??$/i, (res: hubot.Response) => {
-    const input = res.match[1].toLowerCase();
-    const words = _.words(input);
-
-    if (words.length === 1) {
-      res.send(getSpelling(res, words[0]));
-      return;
-    }
-
-    const response: string = _.map(words, function (word) {
-      return `${word}: ${getSpelling(res, word)}`;
-    }).join('\n');
-
-    res.send(response);
+  // Spell a word or words
+  nlc.registerIntent({
+    intent: 'WORD_SPELL',
+    slots: [
+      {
+        name: 'Input',
+        type: 'STRING',
+      }
+    ],
+    callback: spellWords,
+    utterances: [
+      `spell {Input}`,
+      `how do you spell {Input}`,
+      `how do I spell {Input}`,
+      `spellcheck {Input}`
+    ]
   });
 
-  robot.respond(/what does (.+) mean/i, handleDefinition);
-  robot.respond(/define (.+)/i, handleDefinition);
-  robot.respond(/.*definition of (.+)/i, handleDefinition);
+  // Define a word
+  nlc.registerIntent({
+    intent: 'WORD_DEFINE',
+    slots: [
+      {
+        name: 'Word',
+        type: 'STRING',
+      }
+    ],
+    callback: defineWord,
+    utterances: [
+      `what does {Word} mean`,
+      `what's {Word} mean`,
+      `define {Word}`,
+      `definition of {Word}`,
+      `what's the definition of {Word}`,
+      `what is the definition of {Word}`,
+      `what's the word {Word} mean`,
+      `what does the word {Word} mean`,
+      `what's a {Word}`,
+      `what's an {Word}`
+    ]
+  });
 };
