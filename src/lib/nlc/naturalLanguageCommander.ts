@@ -12,6 +12,9 @@ import * as standardSlots from './standardSlots';
 type SlotTypeFunction = (message: string) => any;
 type SlotTypeItem = string | string[] | RegExp | SlotTypeFunction;
 
+const LEFT_CURLY_BRACKET = '\u007B';
+const RIGHT_CURLY_BRACKET = '\u007D';
+
 /** A slot type to be used in intents.. */
 export type ISlotType = {
   /** The slot type name. */
@@ -289,6 +292,7 @@ class NaturalLanguageCommander {
       while ((matchIndex = utterance.search(slotRegexp)) !== -1) {
         const slotName: string = utterance.match(slotRegexp)[1];
 
+        // Check if the slot name matches the intent's slot names.
         if (_.includes(names, slotName)) {
           // Find where in the slot names array this slot is.
           const slotIndex: number = names.indexOf(slotName);
@@ -303,6 +307,13 @@ class NaturalLanguageCommander {
           );
           // Record the match ordering for this slot in the utterance.
           slotMapping.push(slot);
+        } else {
+          // Escape the bad slot in the utterance.
+          utterance = this.escapeBadSlot(
+            utterance,
+            matchIndex,
+            slotName
+          );
         }
       }
     }
@@ -338,12 +349,30 @@ class NaturalLanguageCommander {
     return utterance;
   }
 
+  /**
+   * Replace a solt with a regex capture group.
+   */
   private repaceSlotWithCaptureGroup(utterance: string, matchIndex: number, slotName: string): string {
     // Find the end of the slot name (accounting for braces).
     const lastIndex: number = matchIndex + (slotName.length + 2);
 
     // Replace the slot with a generic capture group.
     return utterance.slice(0, matchIndex) + '(.+)' + utterance.slice(lastIndex);
+  }
+
+  /**
+   * Escape the curly braces in a slot-looking thing that doesn't match a known slot name.
+   */
+  private escapeBadSlot(utterance: string, matchIndex: number, slotName: string): string {
+    // Find the end of the slot name (accounting for braces).
+    const lastIndex: number = matchIndex + (slotName.length + 2);
+
+    // Escape the curly braces in the bad slot match.
+    return utterance.slice(0, matchIndex) +
+      LEFT_CURLY_BRACKET +
+      utterance.slice(matchIndex + 1, lastIndex - 1) +
+      RIGHT_CURLY_BRACKET +
+      utterance.slice(lastIndex);
   }
 
   /**
