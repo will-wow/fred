@@ -55,8 +55,10 @@ export = (robot: hubot.Robot) => {
       res.send(personality.getCurrent(res.message.room).done());
     },
     utterances: [
+      'say "{Message}" to {Room}',
+      'say "{Message}" in {Room}',
       'say {Message} to {Room}',
-      'foo {Bar} {Message} {Room}'
+      'say {Message} in {Room}'
     ]
   });
 
@@ -137,7 +139,7 @@ export = (robot: hubot.Robot) => {
   robot.respond(/(?:joke|fortune) me/, (res: hubot.Response) => {
     res.send(fortuneSource.fortune());
   });
-  robot.respond(/tell me (?:a joke|my fortune|something)/, (res: hubot.Response) => {
+  robot.respond(/tell me (?:my fortune|something)/, (res: hubot.Response) => {
     res.send(fortuneSource.fortune());
   });
 

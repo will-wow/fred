@@ -12,9 +12,6 @@ import * as standardSlots from './standardSlots';
 type SlotTypeFunction = (message: string) => any;
 type SlotTypeItem = string | string[] | RegExp | SlotTypeFunction;
 
-const LEFT_CURLY_BRACKET = '\u007B';
-const RIGHT_CURLY_BRACKET = '\u007D';
-
 /** A slot type to be used in intents.. */
 export type ISlotType = {
   /** The slot type name. */
@@ -290,7 +287,10 @@ class NaturalLanguageCommander {
 
       // Loop while there are still slots left.
       while ((matchIndex = utterance.search(slotRegexp)) !== -1) {
+        /** The name of the slot, not including the braces. */
         const slotName: string = utterance.match(slotRegexp)[1];
+        /** The length of the whole slot match. */
+        const matchLength: number = utterance.match(slotRegexp)[0].length;
 
         // Check if the slot name matches the intent's slot names.
         if (_.includes(names, slotName)) {
@@ -303,17 +303,14 @@ class NaturalLanguageCommander {
           utterance = this.repaceSlotWithCaptureGroup(
             utterance,
             matchIndex,
-            slotName
+            matchLength
           );
           // Record the match ordering for this slot in the utterance.
           slotMapping.push(slot);
         } else {
-          // Escape the bad slot in the utterance.
-          utterance = this.escapeBadSlot(
-            utterance,
-            matchIndex,
-            slotName
-          );
+          // Throw an error so the user knows they used a bad slot.
+          // TODO: Handle intentional slot-looking charater runs with escaping or something?
+          throw new Error(`NLC: slot "${slotName}" not included in slots ${JSON.stringify(names)} for ${intent.intent}!`);
         }
       }
     }
@@ -352,27 +349,12 @@ class NaturalLanguageCommander {
   /**
    * Replace a solt with a regex capture group.
    */
-  private repaceSlotWithCaptureGroup(utterance: string, matchIndex: number, slotName: string): string {
+  private repaceSlotWithCaptureGroup(utterance: string, matchIndex: number, matchLength: number): string {
     // Find the end of the slot name (accounting for braces).
-    const lastIndex: number = matchIndex + (slotName.length + 2);
+    const lastIndex: number = matchIndex + matchLength;
 
     // Replace the slot with a generic capture group.
     return utterance.slice(0, matchIndex) + '(.+)' + utterance.slice(lastIndex);
-  }
-
-  /**
-   * Escape the curly braces in a slot-looking thing that doesn't match a known slot name.
-   */
-  private escapeBadSlot(utterance: string, matchIndex: number, slotName: string): string {
-    // Find the end of the slot name (accounting for braces).
-    const lastIndex: number = matchIndex + (slotName.length + 2);
-
-    // Escape the curly braces in the bad slot match.
-    return utterance.slice(0, matchIndex) +
-      LEFT_CURLY_BRACKET +
-      utterance.slice(matchIndex + 1, lastIndex - 1) +
-      RIGHT_CURLY_BRACKET +
-      utterance.slice(lastIndex);
   }
 
   /**
