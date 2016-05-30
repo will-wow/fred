@@ -136,7 +136,7 @@ export = (robot: hubot.Robot) => {
     });
   });
 
-  robot.respond(/(?:joke|fortune) me/, (res: hubot.Response) => {
+  robot.respond(/fortune me/, (res: hubot.Response) => {
     res.send(fortuneSource.fortune());
   });
   robot.respond(/tell me (?:my fortune|something)/, (res: hubot.Response) => {
