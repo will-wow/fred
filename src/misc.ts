@@ -9,6 +9,9 @@
 //   hubot tell me something - Say a random joke or something else from fortune.
 //   hubot what room is this? - Says what Hubot thinks the current room's name is.
 //   hubot say <message> to <room> - Has the bot say a message in a room.
+//   hubot what's our slogan - Say AssetAvenue's slogan
+//   hubot do you want a loan - Ask for a loan
+//   hubot fortune me - Give a random fortune or quote
 //
 // Author:
 //   Will Lee-Wagner <will@assetavenue.com>
