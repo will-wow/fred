@@ -71,7 +71,7 @@ export = (robot: hubot.Robot) => {
       `what's our slogan`,
       `what is our slogan`
     ],
-    callback: (res: hubot.Response): void => {
+    callback: (res: hubot.Response) => {
       const SLOGANS = [
         'Sure, why not?',
         'Humans ruin everything',
@@ -79,6 +79,29 @@ export = (robot: hubot.Robot) => {
       ];
 
       res.send(_.sample(SLOGANS));
+    }
+  });
+
+  // Ask for a loan
+  nlc.registerIntent({
+    intent: 'MISC_LOAN',
+    utterances: [
+      'do you want a loan',
+      'are you looking for a loan',
+      'what kind of loan do you want',
+      'do you need financing'
+    ],
+    callback: (res: hubot.Response) => {
+      const LOANS = [
+        'Can I have like 300 bucks real quick?',
+        `Can I get an $800,000 personal loan? I have terrible credit, if that helps.`,
+        `I'm going to open a tattoo parlor. Can I get a loan for that?`,
+        `I'm going to buy a house for $10,000, do a $50,000 rehab, and sell it for like a million bucks. Interested?`,
+        `Do you guys do loans?`,
+        `Yeah, I'm doing a rehab. One thing - I, the owner, am going to occupy it. Is that cool?`
+      ];
+
+      res.send(_.sample(LOANS));
     }
   });
 
