@@ -62,6 +62,26 @@ export = (robot: hubot.Robot) => {
     ]
   });
 
+  // Choose a random slogan.
+  nlc.registerIntent({
+    intent: 'MISC_SLOGAN',
+    utterances: [
+      `what is AssetAvenue's slogan`,
+      `what's AssetAvenue's slogan`,
+      `what's our slogan`,
+      `what is our slogan`
+    ],
+    callback: (res: hubot.Response): void => {
+      const SLOGANS = [
+        'Sure, why not?',
+        'Humans ruin everything',
+        `It's pretty okay`
+      ];
+
+      res.send(_.sample(SLOGANS));
+    }
+  });
+
   robot.hear(/I (love|like|liek)(?: you)? fred/i, (res: hubot.Response) => {
     const love: string = res.match[1];
 

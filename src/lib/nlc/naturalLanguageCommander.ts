@@ -3,6 +3,6 @@
  * @module naturalLanguageCommander
  */
 
-const NLC = require('natural-language-commander');
+import NLC = require('natural-language-commander');
 
 export default new NLC();
