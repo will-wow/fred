@@ -9,6 +9,9 @@
 //   hubot tell me something - Say a random joke or something else from fortune.
 //   hubot what room is this? - Says what Hubot thinks the current room's name is.
 //   hubot say <message> to <room> - Has the bot say a message in a room.
+//   hubot what's our slogan - Say AssetAvenue's slogan
+//   hubot do you want a loan - Ask for a loan
+//   hubot fortune me - Give a random fortune or quote
 //
 // Author:
 //   Will Lee-Wagner <will@assetavenue.com>
@@ -60,6 +63,49 @@ export = (robot: hubot.Robot) => {
       'say {Message} to {Room}',
       'say {Message} in {Room}'
     ]
+  });
+
+  // Choose a random slogan.
+  nlc.registerIntent({
+    intent: 'MISC_SLOGAN',
+    utterances: [
+      `what is AssetAvenue's slogan`,
+      `what's AssetAvenue's slogan`,
+      `what's our slogan`,
+      `what is our slogan`
+    ],
+    callback: (res: hubot.Response) => {
+      const SLOGANS = [
+        'Sure, why not?',
+        'Humans ruin everything',
+        `It's pretty okay`
+      ];
+
+      res.send(_.sample(SLOGANS));
+    }
+  });
+
+  // Ask for a loan
+  nlc.registerIntent({
+    intent: 'MISC_LOAN',
+    utterances: [
+      'do you want a loan',
+      'are you looking for a loan',
+      'what kind of loan do you want',
+      'do you need financing'
+    ],
+    callback: (res: hubot.Response) => {
+      const LOANS = [
+        'Can I have like 300 bucks real quick?',
+        `Can I get an $800,000 personal loan? I have terrible credit, if that helps.`,
+        `I'm going to open a tattoo parlor. Can I get a loan for that?`,
+        `I'm going to buy a house for $10,000, do a $50,000 rehab, and sell it for like a million bucks. Interested?`,
+        `Do you guys do loans?`,
+        `Yeah, I'm doing a rehab. One thing - I, the owner, am going to occupy it. Is that cool?`
+      ];
+
+      res.send(_.sample(LOANS));
+    }
   });
 
   robot.hear(/I (love|like|liek)(?: you)? fred/i, (res: hubot.Response) => {
