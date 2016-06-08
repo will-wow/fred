@@ -69,7 +69,7 @@ export = (robot: hubot.Robot) => {
     const messageHandler: CatchAll = personality.isGrumpy(res.message.room) ? grumpyCatchAll : normalCatchAll;
 
     // Only respond to direct messages.
-    if (_.words(text)[0] !== robot.name) {
+    if (!text.match(robot.respondPattern(''))) {
       return;
     }
 
