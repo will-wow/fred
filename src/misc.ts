@@ -189,6 +189,11 @@ export = (robot: hubot.Robot) => {
     res.send(fortuneSource.fortune());
   });
 
+  robot.respond(/whoami/, (res: hubot.Response) => {
+    res.send(`userId: ${res.message.user.id}`);
+    res.send(`username: ${res.message.user.name}`);
+  });
+
   robot.hear(/light ?weight/i, (res: hubot.Response) => {
     res.send('Yeeaaah buddy!');
   });

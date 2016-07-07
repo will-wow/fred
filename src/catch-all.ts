@@ -89,6 +89,10 @@ export = (robot: hubot.Robot) => {
     const message: string = text.substr(text.indexOf(' ') + 1);
 
     // Try to handle it with a natural language command.
-    nlc.handleCommand(res, message);
+    nlc.handleCommand({
+      data: res,
+      userId: res.message.user.id,
+      command: message
+    });
   });
 };
