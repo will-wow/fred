@@ -50,6 +50,8 @@ export = (robot: hubot.Robot) => {
   nlc.addSlotType({
     type: 'BOOLEAN',
     matcher: (text: string) => {
+      text = text.toLowerCase();
+
       if (_.includes(TRUE_LIST, text)) {
         return true;
       } else if (_.includes(FALSE_LIST, text)) {
@@ -58,6 +60,16 @@ export = (robot: hubot.Robot) => {
         return undefined;
       }
     },
+    baseMatcher: '[\\w ]+'
+  });
+
+  nlc.addSlotType({
+    type: 'A_LOAN',
+    matcher: [
+      'a loan',
+      'financing',
+      'money'
+    ],
     baseMatcher: '[\\w ]+'
   });
 
@@ -113,19 +125,17 @@ export = (robot: hubot.Robot) => {
     intent: 'PREQUAL_START',
     slots: [
       {
-        name: '_',
-        type: 'STRING',
+        name: 'ALoan',
+        type: 'A_LOAN'
       }
     ],
     utterances: [
-      'can I get a loan',
-      'I want a loan',
-      'I need a loan',
-      `I'm looking for a loan`,
-      'can I get financing',
-      'I want financing',
-      'I need financing',
-      `I'm looking for financing`
+      'can I get {ALoan}',
+      'I want {ALoan}',
+      'I need {ALoan}',
+      `I'm looking for {ALoan}`,
+      'Can you do my deal',
+      'Can you do this deal'
     ],
     callback: (res: hubot.Response) => ask(res, 'PREQUAL_IS_RESIDENTIAL'),
   });
