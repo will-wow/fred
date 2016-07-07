@@ -62,11 +62,24 @@ function grumpyCatchAll(res: hubot.Response, sentimentScore: number) {
   }
 }
 
+// Handle uncaught comamnds.
+nlc.registerNotFound((res: hubot.Response) => {
+  // TODO: Pass the message to the notFoundCallback, so we don't have to duplicate this.
+  const text: string = res.message.text;
+  const message: string = text.substr(text.indexOf(' ') + 1);
+
+  // Handle messages differently based on if fred is grumpy or not.
+  const messageHandler: CatchAll = personality.isGrumpy(res.message.room) ? grumpyCatchAll : normalCatchAll;
+
+  // Calculate the sentiment of the statement. Negative numbers are negative sentiment.
+  const sentimentScore: number = speak.sentiment.analyze(message).score;
+
+  messageHandler(res, sentimentScore, message);
+});
+
 export = (robot: hubot.Robot) => {
   robot.catchAll((res: hubot.Response) => {
     const text: string = res.message.text;
-
-    const messageHandler: CatchAll = personality.isGrumpy(res.message.room) ? grumpyCatchAll : normalCatchAll;
 
     // Only respond to direct messages.
     if (!text.match(robot.respondPattern(''))) {
@@ -76,13 +89,6 @@ export = (robot: hubot.Robot) => {
     const message: string = text.substr(text.indexOf(' ') + 1);
 
     // Try to handle it with a natural language command.
-    nlc.handleCommand(res, message)
-    // Handle uncaught comamnd.
-    .catch(() => {
-      // Calculate the sentiment of the statement. Negative numbers are negative sentiment.
-      const sentimentScore: number = speak.sentiment.analyze(message).score;
-
-      messageHandler(res, sentimentScore, message);
-    });
+    nlc.handleCommand(res, message);
   });
 };
