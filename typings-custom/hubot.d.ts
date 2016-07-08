@@ -195,6 +195,9 @@ declare module hubot {
      */
     http(url: string, options?: Object): {
       get: () => Function;
+      post: (body?: any) => Function;
+      put: (body?: any) => Function;
+      delete: () => Function;
     }
   }
 

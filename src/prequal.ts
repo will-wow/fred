@@ -14,7 +14,7 @@
 import _ = require('lodash');
 
 import nlc from './lib/nlc/naturalLanguageCommander';
-import personality from './lib/personality/currentPersonality';
+import LoanApplications from './lib/prequal/LoanApplications';
 
 const TRUE_LIST = [
   'true',
@@ -47,6 +47,8 @@ function ask(res: hubot.Response, question: string) {
 }
 
 export = (robot: hubot.Robot) => {
+  const loanApps = new LoanApplications(robot);
+
   nlc.addSlotType({
     type: 'BOOLEAN',
     matcher: (text: string) => {
@@ -73,7 +75,7 @@ export = (robot: hubot.Robot) => {
     baseMatcher: '[\\w ]+'
   });
 
-  /* QUESTIONS */
+  /* KICKOUT QUESTIONS */
   nlc.registerQuestion({
     name: 'PREQUAL_IS_RESIDENTIAL',
     slotType: 'BOOLEAN',
@@ -95,7 +97,7 @@ export = (robot: hubot.Robot) => {
     questionCallback: (res: hubot.Response) => res.send(`Sounds good! Are you going to live in the property?`),
     successCallback: (res: hubot.Response, answer: boolean) => {
       if (!answer) {
-        ask(res, 'PREQUAL_IS_COOL');
+        ask(res, 'PREQUAL_ZIP');
       } else {
         res.send('Sorry, we only do loans for non-owner-occupied properties.');
       }
@@ -104,21 +106,100 @@ export = (robot: hubot.Robot) => {
     failCallback: (res: hubot.Response) => res.send(FAIL_MESSAGE),
   });
 
+  /* PREQUAL QUESTIONS */
   nlc.registerQuestion({
-    name: 'PREQUAL_IS_COOL',
-    slotType: 'BOOLEAN',
-    questionCallback: (res: hubot.Response) => res.send(`Great! One more question. Do you think you might be an idiot?`),
-    successCallback: (res: hubot.Response, answer: boolean) => {
-      if (!answer) {
-        res.send(`Well then, we might do your deal! Go to http://assetavenue.com to fill out an application.`);
+    name: 'PREQUAL_ZIP',
+    slotType: 'WORD',
+    questionCallback: (res: hubot.Response) => res.send(`Okay, what's the property zip code?`),
+    successCallback: (res: hubot.Response, zip: string) => {
+      const loanApp = loanApps.get(res.message.user.id);
+      loanApp.propertyPostalCode = zip;
+
+      ask(res, 'PREQUAL_STATE');
+    },
+    cancelCallback: (res: hubot.Response) => res.send(CANCEL_MESSAGE),
+    failCallback: (res: hubot.Response) => res.send(FAIL_MESSAGE),
+  });
+
+  nlc.registerQuestion({
+    name: 'PREQUAL_STATE',
+    slotType: 'WORD',
+    questionCallback: (res: hubot.Response) => res.send(`And what's the property state?`),
+    successCallback: (res: hubot.Response, state: string) => {
+      const loanApp = loanApps.get(res.message.user.id);
+      loanApp.propertyState = state;
+
+      // Load the base rate from the property location.
+      loanApp.engine.loadBaseRate()
+        .then(() => {
+          // If the base rate loaded, the property is valid.
+          ask(res, 'PREQUAL_LOAN_PURPOSE_TYPE');
+        })
+        .catch((kickout: string) => {
+          // If it failed, respond with the kickout.
+          res.send(`Sorry we don't lend in that area: ${kickout}`);
+        });
+    },
+    cancelCallback: (res: hubot.Response) => res.send(CANCEL_MESSAGE),
+    failCallback: (res: hubot.Response) => res.send(FAIL_MESSAGE),
+  });
+
+  nlc.addSlotType({
+    type: 'LOAN_PURPOSE_TYPE',
+    matcher: (text: string): string => {
+      if (_.includes(['purchase', 'buy'], text.toLocaleLowerCase())) {
+        return 'purchase';
+      } else if (_.includes(['refinance', 'refi'], text.toLocaleLowerCase())) {
+        return 'refinance';
+      }
+    }
+  });
+
+  nlc.registerQuestion({
+    name: 'PREQUAL_LOAN_PURPOSE_TYPE',
+    slotType: 'LOAN_PURPOSE_TYPE',
+    utterances: [
+      '{Slot}',
+      `I'm {Slot}ing`,
+      `im {Slot}ing`,
+      `It's a {Slot}`,
+      `its a {Slot}`
+    ],
+    questionCallback: (res: hubot.Response) => res.send(`Good news, we do lend in that area! Now, is this a purchase or a refinance?`),
+    successCallback: (res: hubot.Response, loanPurposeType: string) => {
+      const loanApp = loanApps.get(res.message.user.id);
+      loanApp.loanPurposeType = loanPurposeType;
+
+      if (loanApp.isPurchase) {
+        ask(res, 'propertyPurchaseAmount');
       } else {
-        res.send(`Oh, sorry, we don't lend to idiots.`);
+        ask(res, 'PREQUAL_currentPropertyValueAmount');
       }
     },
     cancelCallback: (res: hubot.Response) => res.send(CANCEL_MESSAGE),
     failCallback: (res: hubot.Response) => res.send(FAIL_MESSAGE),
   });
 
+  nlc.registerQuestion({
+    name: 'PREQUAL_LOAN_PURPOSE_TYPE',
+    slotType: 'LOAN_PURPOSE_TYPE',
+    utterances: [
+      '{Slot}',
+      `I'm {Slot}ing`,
+      `im {Slot}ing`,
+      `It's a {Slot}`,
+      `its a {Slot}`
+    ],
+    questionCallback: (res: hubot.Response) => res.send(`Good news, we do lend in that area! Now, is this a purchase or a refinance?`),
+    successCallback: (res: hubot.Response, loanPurposeType: string) => {
+      const loanApp = loanApps.get(res.message.user.id);
+      loanApp.loanPurposeType = loanPurposeType;
+
+      ask(res, 'PREQUAL_additionalCashOutAmount');
+    },
+    cancelCallback: (res: hubot.Response) => res.send(CANCEL_MESSAGE),
+    failCallback: (res: hubot.Response) => res.send(FAIL_MESSAGE),
+  });
 
   /* START PREQUAL */
   nlc.registerIntent({
@@ -137,6 +218,9 @@ export = (robot: hubot.Robot) => {
       'Can you do my deal',
       'Can you do this deal'
     ],
-    callback: (res: hubot.Response) => ask(res, 'PREQUAL_IS_RESIDENTIAL'),
+    callback: (res: hubot.Response) => {
+      loanApps.create(res.message.user.id);
+      ask(res, 'PREQUAL_IS_RESIDENTIAL');
+    }
   });
 };
