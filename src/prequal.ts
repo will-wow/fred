@@ -171,7 +171,7 @@ export = (robot: hubot.Robot) => {
       loanApp.loanPurposeType = loanPurposeType;
 
       if (loanApp.isPurchase) {
-        ask(res, 'propertyPurchaseAmount');
+        ask(res, 'PREQUAL_propertyPurchaseAmount');
       } else {
         ask(res, 'PREQUAL_currentPropertyValueAmount');
       }
@@ -181,25 +181,68 @@ export = (robot: hubot.Robot) => {
   });
 
   nlc.registerQuestion({
-    name: 'PREQUAL_LOAN_PURPOSE_TYPE',
-    slotType: 'LOAN_PURPOSE_TYPE',
+    name: 'PREQUAL_propertyPurchaseAmount',
+    slotType: 'NUMBER',
     utterances: [
       '{Slot}',
-      `I'm {Slot}ing`,
-      `im {Slot}ing`,
-      `It's a {Slot}`,
-      `its a {Slot}`
+      '${Slot}'
     ],
-    questionCallback: (res: hubot.Response) => res.send(`Good news, we do lend in that area! Now, is this a purchase or a refinance?`),
-    successCallback: (res: hubot.Response, loanPurposeType: string) => {
+    questionCallback: (res: hubot.Response) => res.send(`What's the purchase price for the property?`),
+    successCallback: (res: hubot.Response, propertyPurchaseAmount: number) => {
       const loanApp = loanApps.get(res.message.user.id);
-      loanApp.loanPurposeType = loanPurposeType;
+      loanApp.propertyPurchaseAmount = propertyPurchaseAmount;
 
+      ask(res, 'PREQUAL_desiredPropertyLoanAmount');
+    },
+    cancelCallback: (res: hubot.Response) => res.send(CANCEL_MESSAGE),
+    failCallback: (res: hubot.Response) => res.send(FAIL_MESSAGE),
+  });
+
+  nlc.registerQuestion({
+    name: 'PREQUAL_additionalCashOutAmount',
+    slotType: 'NUMBER',
+    utterances: [
+      '{Slot}',
+      '${Slot}'
+    ],
+    questionCallback: (res: hubot.Response) => res.send(`How much is your property worth?`),
+    successCallback: (res: hubot.Response, currentPropertyValueAmount: number) => {
+      const loanApp = loanApps.get(res.message.user.id);
+      loanApp.currentPropertyValueAmount = currentPropertyValueAmount;
+
+      ask(res, 'PREQUAL_desiredPropertyLoanAmount');
+    },
+    cancelCallback: (res: hubot.Response) => res.send(CANCEL_MESSAGE),
+    failCallback: (res: hubot.Response) => res.send(FAIL_MESSAGE),
+  });
+
+  nlc.registerQuestion({
+    name: 'PREQUAL_propertyLoanAmount',
+    slotType: 'NUMBER',
+    utterances: [
+      '{Slot}',
+      '${Slot}'
+    ],
+    questionCallback: (res: hubot.Response) => res.send(`And how much financing are you looking for?`),
+    successCallback: (res: hubot.Response, propertyLoanAmount: number) => {
+      const loanApp = loanApps.get(res.message.user.id);
+      loanApp.propertyLoanAmount = propertyLoanAmount;
+
+      if (loanApp.isBelowLoanMin) {
+        res.send(`Sorry, that is below our $${loanApp.loanMin} minimum.`);
+        return;
+      } else if (loanApp.isAboveLoanMax) {
+        res.send(`Sorry, that is above our $${loanApp.loanMin} maximum.`);
+        return;
+      }
+
+      // loanApp.engine.getRate()
       ask(res, 'PREQUAL_additionalCashOutAmount');
     },
     cancelCallback: (res: hubot.Response) => res.send(CANCEL_MESSAGE),
     failCallback: (res: hubot.Response) => res.send(FAIL_MESSAGE),
   });
+
 
   /* START PREQUAL */
   nlc.registerIntent({
