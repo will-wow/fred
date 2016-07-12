@@ -39,6 +39,14 @@ const FALSE_LIST = [
 const CANCEL_MESSAGE = `Okay. Good luck!`;
 const FAIL_MESSAGE = `Sorry, I'm not sure what you're looking for. You can say "I want a loan" to start again.`;
 
+const KICKOUT_MESSAGES = {
+  loan_amount_exceeded: 'Sorry, we currently do not offer loans exceeding $2,000,000.',
+  loan_below_minimum: 'Sorry, this loan does not meet our $75,000 minimum loan amount requirement.',
+  bad_credit: 'Sorry, we currently do not lend to borrowers who have a FICO score less than 650.',
+  super_credit: 'Sorry, valid FICO ranges are 500-850.',
+  high_ltv: 'Sorry, we only offer loans up to 75% of the property value'
+};
+
 function ask(res: hubot.Response, question: string) {
   nlc.ask({
     userId: res.message.user.id,
@@ -148,9 +156,9 @@ export = (robot: hubot.Robot) => {
   nlc.addSlotType({
     type: 'LOAN_PURPOSE_TYPE',
     matcher: (text: string): string => {
-      if (_.includes(['purchase', 'buy'], text.toLocaleLowerCase())) {
+      if (_.includes(['purchase', 'purchas', 'buy'], text.toLocaleLowerCase())) {
         return 'purchase';
-      } else if (_.includes(['refinance', 'refi'], text.toLocaleLowerCase())) {
+      } else if (_.includes(['refinance', 'refinanc', 'refi'], text.toLocaleLowerCase())) {
         return 'refinance';
       }
     }
@@ -200,7 +208,7 @@ export = (robot: hubot.Robot) => {
   });
 
   nlc.registerQuestion({
-    name: 'PREQUAL_additionalCashOutAmount',
+    name: 'PREQUAL_currentPropertyValueAmount',
     slotType: 'NUMBER',
     utterances: [
       '{Slot}',
@@ -211,7 +219,7 @@ export = (robot: hubot.Robot) => {
       const loanApp = loanApps.get(res.message.user.id);
       loanApp.currentPropertyValueAmount = currentPropertyValueAmount;
 
-      ask(res, 'PREQUAL_desiredPropertyLoanAmount');
+      ask(res, 'PREQUAL_propertyLoanAmount');
     },
     cancelCallback: (res: hubot.Response) => res.send(CANCEL_MESSAGE),
     failCallback: (res: hubot.Response) => res.send(FAIL_MESSAGE),
@@ -229,21 +237,46 @@ export = (robot: hubot.Robot) => {
       const loanApp = loanApps.get(res.message.user.id);
       loanApp.propertyLoanAmount = propertyLoanAmount;
 
-      if (loanApp.isBelowLoanMin) {
-        res.send(`Sorry, that is below our $${loanApp.loanMin} minimum.`);
-        return;
-      } else if (loanApp.isAboveLoanMax) {
-        res.send(`Sorry, that is above our $${loanApp.loanMin} maximum.`);
-        return;
-      }
+      const kickout = loanApp.financingKickout;
 
-      // loanApp.engine.getRate()
-      ask(res, 'PREQUAL_additionalCashOutAmount');
+      // Do some early kickouts.
+      if (kickout) {
+        res.send(KICKOUT_MESSAGES[kickout]);
+        return;
+      } else {
+        ask(res, 'PREQUAL_borrowerFicoScore');
+      }
     },
     cancelCallback: (res: hubot.Response) => res.send(CANCEL_MESSAGE),
     failCallback: (res: hubot.Response) => res.send(FAIL_MESSAGE),
   });
 
+  nlc.registerQuestion({
+    name: 'PREQUAL_borrowerFicoScore',
+    slotType: 'NUMBER',
+    questionCallback: (res: hubot.Response) => res.send(`Looks good! One more question, what's your estimated FICO score?`),
+    successCallback: (res: hubot.Response, borrowerFicoScore: number) => {
+      const loanApp = loanApps.get(res.message.user.id);
+      loanApp.borrowerFicoScore = borrowerFicoScore;
+
+      const kickout = loanApp.validateFico();
+
+      if (kickout) {
+        res.send(KICKOUT_MESSAGES[kickout]);
+        return;
+      }
+
+      const rateOrKickout: number | string = loanApp.engine.getRate();
+
+      if (_.isString(rateOrKickout)) {
+        res.send(KICKOUT_MESSAGES[rateOrKickout]);
+      } else {
+        res.send(`Congratulations, you're preapproved for a ${rateOrKickout}% loan! Go to https://assetavenue.com/prequal/bridge-application to finish your application.`);
+      }
+    },
+    cancelCallback: (res: hubot.Response) => res.send(CANCEL_MESSAGE),
+    failCallback: (res: hubot.Response) => res.send(FAIL_MESSAGE),
+  });
 
   /* START PREQUAL */
   nlc.registerIntent({
