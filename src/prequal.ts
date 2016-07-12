@@ -393,7 +393,7 @@ export = (robot: hubot.Robot) => {
           if (_.isString(rate)) {
             res.send(`kickouts: ${rate}`);
           } else {
-            res.send(`rate: ${loanApp.engine.getRate()}\nltv: ${loanApp.loanToValue}`);
+            res.send(`rate: ${rate * 100}%\nltv: ${loanApp.loanToValue * 100}%`);
           }
         })
         .catch((kickout: string) => {
