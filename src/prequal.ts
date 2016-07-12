@@ -222,7 +222,7 @@ export = (robot: hubot.Robot) => {
 
   registerPrequalQuestion({
     name: 'PREQUAL_propertyPurchaseAmount',
-    slotType: 'NUMBER',
+    slotType: 'CURRENCY',
     utterances: [
       '{Slot}',
       '${Slot}'
@@ -238,7 +238,7 @@ export = (robot: hubot.Robot) => {
 
   registerPrequalQuestion({
     name: 'PREQUAL_currentPropertyValueAmount',
-    slotType: 'NUMBER',
+    slotType: 'CURRENCY',
     utterances: [
       '{Slot}',
       '${Slot}'
@@ -254,7 +254,7 @@ export = (robot: hubot.Robot) => {
 
   registerPrequalQuestion({
     name: 'PREQUAL_propertyLoanAmount',
-    slotType: 'NUMBER',
+    slotType: 'CURRENCY',
     utterances: [
       '{Slot}',
       '${Slot}'
@@ -297,7 +297,7 @@ export = (robot: hubot.Robot) => {
         res.send(KICKOUT_MESSAGES[rateOrKickout]);
       } else {
         const rate: number = rateOrKickout * 100;
-        res.send(`Congratulations, you are preapproved for a ${rateOrKickout}% loan! Go to https://assetavenue.com/prequal/bridge-application to finish your application.`);
+        res.send(`Congratulations, you are preapproved for a ${rate}% loan! Go to https://assetavenue.com/prequal/bridge-application to finish your application.`);
       }
     }
   });
@@ -343,11 +343,11 @@ export = (robot: hubot.Robot) => {
       },
       {
         name: 'propertyValue',
-        type: 'NUMBER'
+        type: 'CURRENCY'
       },
       {
         name: 'propertyLoanAmount',
-        type: 'NUMBER'
+        type: 'CURRENCY'
       },
       {
         name: 'borrowerFicoScore',
@@ -355,7 +355,12 @@ export = (robot: hubot.Robot) => {
       }
     ],
     utterances: [
-      'price a {loanPurposeType} loan in {zip} {state} for {propertyLoanAmount} of {propertyValue} with a {borrowerFicoScore} fico'
+      'price a bridge {loanPurposeType} loan in {zip} {state} for {propertyLoanAmount} of {propertyValue} with {borrowerFicoScore} fico',
+      'price a bridge {loanPurposeType} loan in {zip} {state} for {propertyLoanAmount} of {propertyValue} with a {borrowerFicoScore} fico',
+      'price a bridge {loanPurposeType} loan in {zip} {state} for {propertyLoanAmount} of {propertyValue} with an {borrowerFicoScore} fico',
+      'price a bridge {loanPurposeType} loan in {zip}, {state} for {propertyLoanAmount} of {propertyValue} with {borrowerFicoScore} fico',
+      'price a bridge {loanPurposeType} loan in {zip}, {state} for {propertyLoanAmount} of {propertyValue} with a {borrowerFicoScore} fico',
+      'price a bridge {loanPurposeType} loan in {zip}, {state} for {propertyLoanAmount} of {propertyValue} with an {borrowerFicoScore} fico',
     ],
     callback: (
       res: hubot.Response,
