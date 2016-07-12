@@ -12,7 +12,7 @@ interface IBridgeRateTable {
   [fico: number]: IBridgeLtvRatesTable;
 }
 
-const RATE_MINIMUM: number = 9;
+const RATE_MINIMUM: number = 0.095;
 
 /** Represents the logic for the prequal engine for bridge loans */
 class BridgeEngine {

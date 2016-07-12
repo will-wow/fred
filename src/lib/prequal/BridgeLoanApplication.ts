@@ -58,16 +58,40 @@ class BridgeLoanApplication {
   get propertyLoanAmount(): number {
     if (this.isPurchase) {
       return this.desiredPropertyLoanAmount;
-    } else {
+    } else if (this.isRefi) {
       return this.additionalCashOutAmount;
+    } else {
+      throw new Error('propertyLoanAmount: loanPurposeType must be set!');
     }
   }
 
   set propertyLoanAmount(loanAmount: number) {
     if (this.isPurchase) {
       this.desiredPropertyLoanAmount = loanAmount;
-    } else {
+    } else if (this.isRefi) {
       this.additionalCashOutAmount = loanAmount;
+    } else {
+      throw new Error('propertyValue: loanPurposeType must be set!');
+    }
+  }
+
+  get propertyValue(): number {
+    if (this.isPurchase) {
+      return this.propertyPurchaseAmount;
+    } else if (this.isRefi) {
+      return this.currentPropertyValueAmount;
+    } else {
+      throw new Error('propertyValue: loanPurposeType must be set!');
+    }
+  }
+
+  set propertyValue(propertyValue: number) {
+    if (this.isPurchase) {
+      this.propertyPurchaseAmount = propertyValue;
+    } else if (this.isRefi) {
+      this.currentPropertyValueAmount = propertyValue;
+    } else {
+      throw new Error('propertyValue: loanPurposeType must be set!');
     }
   }
 
@@ -85,6 +109,15 @@ class BridgeLoanApplication {
    * A kickout for the loan, if any.
    */
   get kickout(): string {
+    const kickouts = this.kickouts;
+
+    return this._kickouts.length ? this._kickouts[0] : undefined;
+  }
+
+  /**
+   * All kickouts for the loan.
+   */
+  get kickouts(): string[] {
     this._kickouts = [];
 
     this.validateFico();
@@ -92,7 +125,7 @@ class BridgeLoanApplication {
     this.validateIsBelowLoanMin();
     this.validateLoanToValue();
 
-    return this._kickouts.length ? this._kickouts[0] : undefined;
+    return this._kickouts.length ? this._kickouts : undefined;
   }
 
   /**

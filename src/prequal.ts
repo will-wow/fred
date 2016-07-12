@@ -15,6 +15,7 @@ import _ = require('lodash');
 
 import nlc from './lib/nlc/naturalLanguageCommander';
 import LoanApplications from './lib/prequal/LoanApplications';
+import BridgeLoanApplication from './lib/prequal/BridgeLoanApplication';
 import ApiUtils from './lib/ApiUtils';
 
 const TRUE_LIST = [
@@ -65,6 +66,7 @@ function registerPrequalQuestion(options: {
   nlc.registerQuestion({
     name: options.name,
     slotType: options.slotType,
+    utterances: options.utterances,
     questionCallback: (res: hubot.Response) => res.send(options.question),
     successCallback: options.successCallback,
     cancelCallback: (res: hubot.Response) => res.send(CANCEL_MESSAGE),
@@ -142,14 +144,18 @@ export = (robot: hubot.Robot) => {
   });
 
   nlc.addSlotType({
-    type: 'ZIP_CODE',
-    matcher: /\d{5}(?:-\d{4})?/
+    type: 'PREQUAL_ZIP',
+    matcher: (zip: string): string => {
+      // Only return the first 5 digits.
+      return zip.match(/\d{5}/)[0] || undefined;
+    },
+    baseMatcher: '\\d\\d\\d\\d\\d(?:-\\d\\d\\d\\d)?'
   });
 
   /* PREQUAL QUESTIONS */
   registerPrequalQuestion({
     name: 'PREQUAL_ZIP',
-    slotType: 'ZIP_CODE',
+    slotType: 'PREQUAL_ZIP',
     question: `Okay, what's the property zip code?`,
     successCallback: (res: hubot.Response, zip: string) => {
       const loanApp = loanApps.get(res.message.user.id);
@@ -162,7 +168,7 @@ export = (robot: hubot.Robot) => {
   registerPrequalQuestion({
     name: 'PREQUAL_STATE',
     slotType: 'WORD',
-    question: `And what's the property state?`,
+    question: `And what's the property state abbreviation?`,
     successCallback: (res: hubot.Response, state: string) => {
       const loanApp = loanApps.get(res.message.user.id);
       loanApp.propertyState = state;
@@ -290,7 +296,8 @@ export = (robot: hubot.Robot) => {
       if (_.isString(rateOrKickout)) {
         res.send(KICKOUT_MESSAGES[rateOrKickout]);
       } else {
-        res.send(`Congratulations, you're preapproved for a ${rateOrKickout}% loan! Go to https://assetavenue.com/prequal/bridge-application to finish your application.`);
+        const rate: number = rateOrKickout * 100;
+        res.send(`Congratulations, you are preapproved for a ${rateOrKickout}% loan! Go to https://assetavenue.com/prequal/bridge-application to finish your application.`);
       }
     }
   });
@@ -323,21 +330,70 @@ export = (robot: hubot.Robot) => {
     intent: 'PREQUAL_FULL',
     slots: [
       {
-        name: 'ALoan',
-        type: 'A_LOAN'
+        name: 'zip',
+        type: 'PREQUAL_ZIP'
+      },
+      {
+        name: 'state',
+        type: 'WORD'
+      },
+      {
+        name: 'loanPurposeType',
+        type: 'LOAN_PURPOSE_TYPE'
+      },
+      {
+        name: 'propertyValue',
+        type: 'NUMBER'
+      },
+      {
+        name: 'propertyLoanAmount',
+        type: 'NUMBER'
+      },
+      {
+        name: 'borrowerFicoScore',
+        type: 'NUMBER'
       }
     ],
     utterances: [
-      'can I get {ALoan}',
-      'I want {ALoan}',
-      'I need {ALoan}',
-      `I'm looking for {ALoan}`,
-      'Can you do my deal',
-      'Can you do this deal'
+      'price a {loanPurposeType} loan in {zip} {state} for {propertyLoanAmount} of {propertyValue} with a {borrowerFicoScore} fico'
     ],
-    callback: (res: hubot.Response) => {
-      loanApps.create(res.message.user.id);
-      ask(res, 'PREQUAL_IS_RESIDENTIAL');
+    callback: (
+      res: hubot.Response,
+      propertyPostalCode: string,
+      propertyState: string,
+      loanPurposeType: string,
+      propertyValue: number,
+      propertyLoanAmount: number,
+      borrowerFicoScore: number
+    ) => {
+      const loanApp = new BridgeLoanApplication(robot);
+      loanApp.propertyPostalCode = propertyPostalCode;
+      loanApp.propertyState = propertyState;
+      loanApp.loanPurposeType = loanPurposeType;
+      loanApp.propertyValue = propertyValue;
+      loanApp.propertyLoanAmount = propertyLoanAmount;
+      loanApp.borrowerFicoScore = borrowerFicoScore;
+
+      const kickouts = loanApp.kickouts;
+
+      if (kickouts) {
+        res.send(`kickouts: ${kickouts.join(', ')}`);
+        return;
+      }
+
+      loanApp.engine.loadBaseRate()
+        .then(() => {
+          const rate = loanApp.engine.getRate();
+
+          if (_.isString(rate)) {
+            res.send(`kickouts: ${rate}`);
+          } else {
+            res.send(`rate: ${loanApp.engine.getRate()}\nltv: ${loanApp.loanToValue}`);
+          }
+        })
+        .catch((kickout: string) => {
+          res.send(`kickouts: ${kickout}`);
+        });
     }
   });
 };

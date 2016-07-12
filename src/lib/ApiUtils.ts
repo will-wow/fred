@@ -74,8 +74,6 @@ class ApiUtils {
       parsedBody = isNaN(numberBody) ? body : numberBody;
     }
 
-    console.log('parseJson', parsedBody);
-
     return parsedBody;
   }
 }
