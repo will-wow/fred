@@ -1,3 +1,5 @@
+import _ = require('lodash');
+
 import {V2_URL} from './config';
 import ApiUtils from '../ApiUtils';
 import BridgeLoanApplication from './BridgeLoanApplication';
@@ -45,11 +47,11 @@ class BridgeEngine {
   loadBaseRate(): Promise<number | string> {
     return this.updateRateTable()
       .then(() => {
-        return this.api.get(`bridge/rate_adjustment?zip=${this.loanApp.propertyPostalCode}&state=${this.loanApp.propertyState}`);
+        return this.api.get(V2_URL + `bridge/rate_adjustment?zip=${this.loanApp.propertyPostalCode}&state=${this.loanApp.propertyState}`);
       })
       .then((baseRate: number) => {
-        this.baseRate = _.toNumber(baseRate);
-        this.kickout = '';
+        this.baseRate = baseRate;
+        this.kickout = undefined;
         this.ratesAreLive = true;
         return baseRate;
       })

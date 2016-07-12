@@ -15,6 +15,7 @@ import _ = require('lodash');
 
 import nlc from './lib/nlc/naturalLanguageCommander';
 import LoanApplications from './lib/prequal/LoanApplications';
+import ApiUtils from './lib/ApiUtils';
 
 const TRUE_LIST = [
   'true',

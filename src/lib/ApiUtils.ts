@@ -1,3 +1,5 @@
+import _ = require('lodash');
+
 class ApiUtils {
   constructor(
     private robot: hubot.Robot
@@ -34,7 +36,7 @@ class ApiUtils {
   }
 
   private getBodyParser(resolve, reject) {
-    return (error, getRes, body) => {
+    return (error, res, body) => {
       // Handle server error.
       if (error) {
         let parsedError: string;
@@ -53,20 +55,26 @@ class ApiUtils {
         return;
       }
 
-      let parsedBody: any;
-
-      try {
-        parsedBody = JSON.parse(body);
-      }
-      catch (error) {
-        // handle JSON error
-        reject(error);
-        return;
-      }
-
       // Resolve with body.
-      resolve(parsedBody);
+      resolve(this.parseJson(body));
     };
+  }
+
+  private parseJson(body: string): any {
+    let parsedBody: any;
+
+    try {
+      parsedBody = JSON.parse(body);
+    }
+    catch (error) {
+      // If not JSON, maybe it's a number?
+      let numberBody = _.toNumber(body);
+
+      // Use the number or string.
+      parsedBody = isNaN(numberBody) ? body : numberBody;
+    }
+
+    return parsedBody;
   }
 }
 
