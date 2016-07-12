@@ -123,13 +123,13 @@ class BridgeLoanApplication {
   }
 
   private validateIsBelowLoanMin(): string {
-    if (this.propertyLoanAmount <= this.loanMax) {
+    if (this.propertyLoanAmount <= this.loanMin) {
       return this.doKickout(BridgeLoanApplication.KICKOUT_CODES.loan_below_minimum);
     }
   }
 
   private validateIsAboveLoanMax() {
-    if (this.propertyLoanAmount >= this.loanMin) {
+    if (this.propertyLoanAmount >= this.loanMax) {
       return this.doKickout(BridgeLoanApplication.KICKOUT_CODES.loan_amount_exceeded);
     }
   }
