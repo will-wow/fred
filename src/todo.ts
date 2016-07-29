@@ -127,9 +127,9 @@ export = (robot: hubot.Robot) => {
     ]
   });
 
-  // List items
+  // Finish item
   nlc.registerIntent({
-    intent: 'TODO_LIST_ITEMS',
+    intent: 'TODO_FINISH_ITEM',
     slots: [
       {
         name: 'User',
