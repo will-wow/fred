@@ -2,13 +2,13 @@
   "name": "fred",
   "version": false,
   "dependencies": {
-    "lodash": "registry:npm/lodash#4.0.0+20160701205107"
+    "lodash": "registry:npm/lodash#4.0.0+20160723033700"
   },
   "globalDependencies": {
     "cron": "registry:dt/cron#1.0.9+20160316155526",
     "moment-node": "registry:dt/moment-node#2.11.1+20160511043338",
     "moment-timezone": "registry:dt/moment-timezone#0.2.5+20160329220348",
-    "natural": "registry:dt/natural#0.2.1+20160316155526",
-    "node": "registry:dt/node#6.0.0+20160621231320"
+    "natural": "registry:dt/natural#0.2.1+20160730041205",
+    "node": "registry:dt/node#6.0.0+20160815222444"
   }
 }
