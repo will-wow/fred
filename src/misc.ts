@@ -78,7 +78,8 @@ export = (robot: hubot.Robot) => {
       const SLOGANS = [
         'Sure, why not?',
         'Humans ruin everything',
-        `It's pretty okay`
+        `It's pretty okay`,
+        `Why are all the good ideas illegal?`
       ];
 
       res.send(_.sample(SLOGANS));
