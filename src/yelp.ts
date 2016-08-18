@@ -33,7 +33,7 @@ module.exports = (robot) => {
       return client.search({
         sort: '2',
         offset: offset,
-        radius_filter: '600',
+        radius_filter: '2000',
         location: location,
         limit: limit,
         term: query
