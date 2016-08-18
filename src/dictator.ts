@@ -28,8 +28,9 @@ export = (robot: hubot.Robot) => {
   nlc.registerIntent({
     intent: 'DICTATOR_REGISTER',
     utterances: [
-       `Add me as a dictator`,
-       `Make me a dictator`
+      `dictator me`,
+      `Add me as a dictator`,
+      `Make me a dictator`
     ],
     callback: (res: hubot.Response) => {
       if (dictators.add(res.message.user.name)) {
@@ -74,7 +75,13 @@ export = (robot: hubot.Robot) => {
       `lunch time`
     ],
     callback: (res: hubot.Response) => {
-      res.send(`@${dictators.choose()} is the dictator today!`);
+      const dictator = dictators.choose();
+
+      if (dictator) {
+        res.send(`@${dictators.choose()} is the dictator today!`);
+      } else {
+        res.send(`There aren't any dictators! Anarchy reigns!`);
+      }
     }
   })
 };

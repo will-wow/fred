@@ -30,7 +30,7 @@ class Dictators {
 
   remove(username: string): boolean {
     if (_.includes(this.dictators, username)) {
-      _.remove(this.dictators, username);
+      _.pull(this.dictators, username);
       return true;
     } else {
       return false;
