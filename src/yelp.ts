@@ -27,13 +27,13 @@ module.exports = (robot) => {
   robot.respond(/yelp me (.*)/i, (res) => {
     var query = res.match[1];
     var limit = '20';
-    var location = "1110 Glendon Ave. Los Angeles, CA";
+    var location = "1730 E Holly Ave, El Segundo, CA 90245";
 
     function search(offset) {
       return client.search({
         sort: '2',
         offset: offset,
-        radius_filter: '600',
+        radius_filter: '2000',
         location: location,
         limit: limit,
         term: query
