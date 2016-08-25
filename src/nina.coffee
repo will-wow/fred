@@ -1,15 +1,15 @@
 # Description:
 #   Finds pictures of cute animals and reacts with an appropriate comment
 
-# 
+#
 # Dependencies:
-# 
+#
 # Configuration:
-# 
+#
 # Commands:
 #   hubot nina me
 #   aw/aww/awww and so on
-# 
+#
 # Author:
 #   Nina Ling <nling@assetavenue.com>
 
@@ -21,10 +21,10 @@ module.exports = (robot) ->
     imageMe msg, getRandomSearchQuery(), (url) ->
       msg.send url
       setTimeout (() -> msg.send "awwwwwwwwwwwwwwwwwwwwwwwwwwwwww" ), 1000
-      
-  robot.hear /aw+/i, (msg) ->
+
+  robot.hear /a+w+\b/i, (msg) ->
     setTimeout (() -> msg.send "awwwwwwwwwwwwwwwwwwwwwwwwwwwwww" ), 800
-    
+
 getRandomSearchQuery = () ->
   adjectives = ['funny', 'cute', 'lazy', 'dapper', 'fluffy', 'fat', 'sleepy', '']
   animals = ['cat', 'kitten', 'dog', 'puppy', 'shiba inu', 'panda']
