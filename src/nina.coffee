@@ -20,10 +20,13 @@ module.exports = (robot) ->
   robot.respond /nina me/i, (msg) ->
     imageMe msg, getRandomSearchQuery(), (url) ->
       msg.send url
-      setTimeout (() -> msg.send "awwwwwwwwwwwwwwwwwwwwwwwwwwwwww" ), 1000
+      setTimeout (() -> msg.send getAww() ), 1000
       
-  robot.hear /aw+/i, (msg) ->
-    setTimeout (() -> msg.send "awwwwwwwwwwwwwwwwwwwwwwwwwwwwww" ), 800
+  robot.hear /^aw+\b/i, (msg) ->
+    setTimeout (() -> msg.send getAww() ), 800
+    
+getAww = () ->
+  "awwww" + ( _.times ( _.random 25 ), ( _.constant 'w' ) ).join ''
     
 getRandomSearchQuery = () ->
   adjectives = ['funny', 'cute', 'lazy', 'dapper', 'fluffy', 'fat', 'sleepy', '']
