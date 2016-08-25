@@ -34,9 +34,9 @@ export = (robot: hubot.Robot) => {
     ],
     callback: (res: hubot.Response) => {
       if (dictators.add(res.message.user.name)) {
-        res.send(`All hail the new dictator!`);
+        res.send(`Okay, you're in the running for dictator!`);
       } else {
-        res.send(`Good news, you're already a dictator!`);
+        res.send(`Good news, you're already potential dictator!`);
       }
     }
   });
@@ -49,13 +49,15 @@ export = (robot: hubot.Robot) => {
        `I resign as dictator`,
        `Stop making me choose lunch`,
        `Un-Trump me`,
-       `Untrump me`
+       `Untrump me`,
+       `Undictator me`,
+       `Un-dictator me`
     ],
     callback: (res: hubot.Response) => {
       if (dictators.remove(res.message.user.name)) {
-        res.send(`Okay, you're no longer a lunch dictator!`);
+        res.send(`Okay, you're no longer in the running for lunch dictator!`);
       } else {
-        res.send(`Good news, you already weren't a dictator!`);
+        res.send(`Good news, you already weren't trying to be a dictator!`);
       }
     }
   });
@@ -79,6 +81,26 @@ export = (robot: hubot.Robot) => {
 
       if (dictator) {
         res.send(`@${dictators.choose()} is the dictator today!`);
+      } else {
+        res.send(`There aren't any dictators! Anarchy reigns!`);
+      }
+    }
+  });
+
+  // List dictators
+  nlc.registerIntent({
+    intent: 'DICTATOR_LIST',
+    utterances: [
+      `who are the dictators`,
+      `list dictators`,
+      `list the dictators`,
+      `who can pick lunch?`
+    ],
+    callback: (res: hubot.Response) => {
+      const dictatorsList = dictators.list();
+
+      if (dictatorsList.length) {
+        res.send(`Right these are the potential dictators: ${dictatorsList.join(', ')}`);
       } else {
         res.send(`There aren't any dictators! Anarchy reigns!`);
       }

@@ -24,6 +24,7 @@ class Dictators {
       return false;
     } else {
       this.dictators.push(username);
+      this.robot.brain.save();
       return true;
     }
   }
@@ -31,6 +32,7 @@ class Dictators {
   remove(username: string): boolean {
     if (_.includes(this.dictators, username)) {
       _.pull(this.dictators, username);
+      this.robot.brain.save();
       return true;
     } else {
       return false;
@@ -43,6 +45,10 @@ class Dictators {
     } else {
       return _.sample(this.dictators);
     }
+  }
+
+  list(): string[] {
+    return this.dictators;
   }
 
   /**
