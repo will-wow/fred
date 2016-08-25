@@ -1,14 +1,14 @@
 // Description:
 //   Commands about words
-//
+// 
 // Dependencies:
-//
+// 
 // Configuration:
-//
+// 
 // Commands:
 //   hubot spell <word> - Gives spelling suggestions.
 //   hubot what does <word> mean? - Gives some definitions.
-//
+// 
 // Author:
 //   Will Lee-Wagner <will@assetavenue.com>
 
