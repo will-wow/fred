@@ -36,7 +36,30 @@ export = (robot: hubot.Robot) => {
       if (dictators.add(res.message.user.name)) {
         res.send(`Okay, you're in the running for dictator!`);
       } else {
-        res.send(`Good news, you're already potential dictator!`);
+        res.send(`Good news, you're already a potential dictator!`);
+      }
+    }
+  });
+
+  // Add a new dictator.
+  nlc.registerIntent({
+    intent: 'DICTATOR_REGISTER_OTHER',
+    slots: [
+      {
+        name: 'User',
+        type: 'SLACK_NAME'
+      }
+    ],
+    utterances: [
+      `dictator {User}`,
+      `Add {User} as a dictator`,
+      `Make {User} a dictator`
+    ],
+    callback: (res: hubot.Response, username: string) => {
+      if (dictators.add(username)) {
+        res.send(`Okay, ${username} is in the running for dictator!`);
+      } else {
+        res.send(`Good news, ${username} is already a potential dictator!`);
       }
     }
   });
@@ -80,7 +103,7 @@ export = (robot: hubot.Robot) => {
       const dictator = dictators.choose();
 
       if (dictator) {
-        res.send(`@${dictators.choose()} is the dictator today!`);
+        res.send(`${dictators.choose()} is the dictator today!`);
       } else {
         res.send(`There aren't any dictators! Anarchy reigns!`);
       }
@@ -100,7 +123,7 @@ export = (robot: hubot.Robot) => {
       const dictatorsList = dictators.list();
 
       if (dictatorsList.length) {
-        res.send(`Right these are the potential dictators: ${dictatorsList.join(', ')}`);
+        res.send(`Right now, these are the potential dictators: ${dictatorsList.join(', ')}`);
       } else {
         res.send(`There aren't any dictators! Anarchy reigns!`);
       }

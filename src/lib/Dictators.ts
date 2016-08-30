@@ -1,4 +1,7 @@
 import _ = require('lodash');
+import cron = require('cron');
+
+const CronJob = cron.CronJob;
 
 /** Class representing lunch dictators. */
 class Dictators {
@@ -16,15 +19,18 @@ class Dictators {
     // Get the dictators from storage, once they're loaded.
     this.robot.brain.on('loaded', this._onBrainLoaded.bind(this));
     // In case they were already loaded before we got here.
-    this._onBrainLoaded();
+    setTimeout(() => this._onBrainLoaded(), 100);
   }
 
   add(username: string): boolean {
+    if (username[0] !== '@') {
+      username = '@' + username;
+    }
+
     if (_.includes(this.dictators, username)) {
       return false;
     } else {
       this.dictators.push(username);
-      this.robot.brain.save();
       return true;
     }
   }
@@ -66,6 +72,24 @@ class Dictators {
     }
 
     this.dictators = this.robot.brain.data[this.namespace];
+
+    new CronJob({
+      // Run at 11am every day.
+      cronTime: '0 0 11 * * *',
+      // Choose a dictator.
+      onTick: () => {
+        const dictator = this.choose();
+
+        if (dictator) {
+          this.robot.messageRoom(
+            'engineering',
+            `All hail today's dictator: ${dictator}!`
+          );
+        }
+      },
+      // Start immediatly.
+      start: true
+    });
   }
 }
 
