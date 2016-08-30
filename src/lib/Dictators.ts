@@ -74,8 +74,8 @@ class Dictators {
     this.dictators = this.robot.brain.data[this.namespace];
 
     new CronJob({
-      // Run at 11am every day.
-      cronTime: '0 0 11 * * *',
+      // Run at 11am every weekday.
+      cronTime: '0 0 11 ? * MON-FRI *',
       // Choose a dictator.
       onTick: () => {
         const dictator = this.choose();
