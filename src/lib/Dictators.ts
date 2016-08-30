@@ -19,7 +19,7 @@ class Dictators {
     // Get the dictators from storage, once they're loaded.
     this.robot.brain.on('loaded', this._onBrainLoaded.bind(this));
     // In case they were already loaded before we got here.
-    setTimeout(() => this._onBrainLoaded(), 100);
+    setTimeout(() => this._onBrainLoaded(), 10000);
   }
 
   add(username: string): boolean {
